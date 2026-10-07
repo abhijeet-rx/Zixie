@@ -3,6 +3,17 @@ export { tokenizeAndNormalize } from './normalizer/tokenizer.js';
 export { winnow, calculateFingerprintSimilarity } from './winnowing/winnowing.js';
 export { greedyStringTiling } from './tiling/rkr-gst.js';
 export { detectAiGeneratedCode } from './ai-detector/ai-detector.js';
+export {
+  buildCollusionClusters,
+  type GraphNode,
+  type GraphEdge,
+  type CollusionRing,
+  type CohortAnalysisReport,
+} from './clustering/graph-clustering.js';
+export {
+  analyzeCandidateCohort,
+  type BatchAnalysisOptions,
+} from './batch/batch-processor.js';
 
 import { CandidateSubmission, SimilarityResult } from './types.js';
 import { tokenizeAndNormalize } from './normalizer/tokenizer.js';
