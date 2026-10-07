@@ -10,13 +10,16 @@
     "start": "node dist/index.js"
   },
   "dependencies": {
-    "@zixie/engine": "*",
-    "fastify": "^5.2.1",
     "@fastify/cors": "^10.0.2",
     "@fastify/multipart": "^9.0.3",
+    "@zixie/engine": "*",
+    "adm-zip": "^0.6.1",
+    "fastify": "^5.2.1",
+    "pino-pretty": "^13.2.0",
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
     "@types/node": "^22.13.4",
     "tsx": "^4.19.3",
     "typescript": "^5.7.3"

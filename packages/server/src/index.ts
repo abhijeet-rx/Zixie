@@ -1,27 +1,40 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import multipart from '@fastify/multipart';
-import { ENGINE_VERSION } from '@zixie/engine';
+import { analysisRoutes } from './routes/analysis.js';
 
-const app = Fastify({ logger: true });
+export function createServer() {
+  const app = Fastify({
+    logger: {
+      transport: {
+        target: 'pino-pretty',
+        options: {
+          translateTime: 'HH:MM:ss Z',
+          ignore: 'pid,hostname',
+        },
+      },
+    },
+  });
 
-await app.register(cors, { origin: true });
-await app.register(multipart, { limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
+  app.register(cors, { origin: true });
+  app.register(multipart, { limits: { fileSize: 50 * 1024 * 1024 } }); // 50MB limit
 
-app.get('/api/health', async () => {
-  return { status: 'healthy', engineVersion: ENGINE_VERSION, timestamp: new Date().toISOString() };
-});
+  // Register main analysis endpoints under /api
+  app.register(analysisRoutes, { prefix: '/api' });
 
-const PORT = Number(process.env.PORT) || 4000;
+  return app;
+}
 
-const start = async () => {
-  try {
-    await app.listen({ port: PORT, host: '0.0.0.0' });
-    console.log(`🚀 Zixie API server running on http://localhost:${PORT}`);
-  } catch (err) {
-    app.log.error(err);
-    process.exit(1);
-  }
-};
+// Only start listening if executed directly
+if (process.argv[1] && process.argv[1].includes('index')) {
+  const app = createServer();
+  const PORT = Number(process.env.PORT) || 4000;
 
-start();
+  app.listen({ port: PORT, host: '0.0.0.0' }, (err, address) => {
+    if (err) {
+      app.log.error(err);
+      process.exit(1);
+    }
+    console.log(`🚀 Zixie API server running on ${address}`);
+  });
+}
