@@ -1,5 +1,12 @@
 import { useState, useEffect } from 'react';
-import { ArrowRight, ShieldCheck, Sparkles, Terminal, Users } from 'lucide-react';
+import {
+  ArrowRight,
+  Terminal,
+  Users,
+  Fingerprint,
+  CheckCircle2,
+} from 'lucide-react';
+import { Button } from './ui/button';
 
 interface LandingHeroProps {
   onStart: () => void;
@@ -11,81 +18,142 @@ export function LandingHero({ onStart }: LandingHeroProps) {
   useEffect(() => {
     const timer = setTimeout(() => {
       setHeadlineStage('answer');
-    }, 1400);
+    }, 1200);
     return () => clearTimeout(timer);
   }, []);
 
   return (
-    <div className="relative z-10 max-w-3xl text-center space-y-8 animate-fade-in px-4">
-      {/* Top pill badge */}
-      <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-950/60 border border-purple-500/30 text-purple-300 text-xs font-mono tracking-wide shadow-inner shadow-purple-900/30">
-        <Sparkles className="w-3.5 h-3.5 text-purple-400 animate-spin" style={{ animationDuration: '6s' }} />
-        <span>Next-Gen Code Integrity Engine</span>
+    <div className="relative z-10 w-full max-w-5xl mx-auto px-4 sm:px-6 py-12 md:py-20 flex flex-col items-center text-center space-y-10 animate-fade-in font-sans">
+      {/* Top Dossier Seal Pill */}
+      <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-z-surface-1 border border-z-border shadow-z-sm text-z-text-secondary text-xs font-mono">
+        <span className="w-2 h-2 rounded-full bg-z-accent animate-pulse" />
+        <span className="uppercase tracking-wider font-semibold text-z-text-primary">
+          Code Forensics Lab
+        </span>
+        <span className="text-z-text-muted">/</span>
+        <span className="text-z-text-muted">v0.1.0 Ingestion Active</span>
       </div>
 
-      {/* Main Animated Headline */}
-      <div className="space-y-2 min-h-[140px] flex flex-col justify-center items-center">
-        <h1 className="text-5xl sm:text-6xl md:text-7xl font-black tracking-tight text-white leading-tight">
+      {/* Main Headline with Instrument Serif */}
+      <div className="space-y-4 max-w-4xl mx-auto">
+        <h1 className="text-5xl sm:text-6xl md:text-7xl font-display tracking-tight text-z-text-primary leading-[1.05]">
           Cheating?{' '}
           <span
-            className={`inline-block transition-all duration-700 ${
+            className={`italic transition-all duration-700 inline-block ${
               headlineStage === 'answer'
-                ? 'opacity-100 translate-y-0 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-teal-400'
-                : 'opacity-0 translate-y-4'
+                ? 'opacity-100 translate-y-0 text-z-accent font-normal'
+                : 'opacity-0 translate-y-3 text-z-text-muted'
             }`}
           >
             Not anymore.
           </span>
         </h1>
-      </div>
 
-      {/* Subtext */}
-      <p className="text-slate-400 text-base sm:text-lg md:text-xl font-normal max-w-2xl mx-auto leading-relaxed">
-        Zixie uncovers hidden collusion rings, variable-renamed plagiarism, and AI-generated code across remote technical coding tests in milliseconds.
-      </p>
-
-      {/* Core Feature highlights */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 max-w-xl mx-auto text-left">
-        <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-purple-500/10 border border-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
-            <Terminal className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-200">MOSS & RKR-GST</div>
-            <div className="text-[11px] text-slate-400">Deep String Tiling</div>
-          </div>
-        </div>
-
-        <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-teal-500/10 border border-teal-500/20 flex items-center justify-center text-teal-400 shrink-0">
-            <Users className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-200">Collusion Rings</div>
-            <div className="text-[11px] text-slate-400">Graph Clustering</div>
-          </div>
-        </div>
-
-        <div className="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800/80 backdrop-blur-sm flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-pink-500/10 border border-pink-500/20 flex items-center justify-center text-pink-400 shrink-0">
-            <ShieldCheck className="w-4 h-4" />
-          </div>
-          <div>
-            <div className="text-xs font-semibold text-slate-200">AI Detection</div>
-            <div className="text-[11px] text-slate-400">Stylometric Scans</div>
-          </div>
-        </div>
+        <p className="text-base sm:text-lg md:text-xl text-z-text-secondary font-sans max-w-2xl mx-auto leading-relaxed">
+          Zixie uncovers hidden collusion rings, variable-renamed structural plagiarism, and synthetic AI-generated code across candidate test submissions in milliseconds.
+        </p>
       </div>
 
       {/* CTA Button */}
-      <div className="pt-4 flex justify-center">
-        <button
+      <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+        <Button
+          variant="primary"
+          size="lg"
           onClick={onStart}
-          className="group relative inline-flex items-center gap-2.5 px-8 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 via-indigo-600 to-purple-600 hover:from-purple-500 hover:to-indigo-500 text-white font-medium text-base shadow-lg shadow-purple-600/30 hover:shadow-purple-600/50 transition-all duration-200 cursor-pointer"
+          className="font-mono text-sm px-8 py-3.5 shadow-z-md group"
         >
-          <span>Launch Zixie</span>
+          <span>Launch Forensic Workspace</span>
           <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-        </button>
+        </Button>
+      </div>
+
+      {/* Interactive Simulated Forensic Scanner Preview Card */}
+      <div className="w-full max-w-3xl rounded-lg bg-z-surface-1 border border-z-border overflow-hidden shadow-z-lg text-left font-mono text-xs">
+        {/* Terminal Header */}
+        <div className="px-4 py-2.5 bg-z-surface-2/80 border-b border-z-border flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-z-surface-3 border border-z-border" />
+            <span className="w-2.5 h-2.5 rounded-full bg-z-surface-3 border border-z-border" />
+            <span className="w-2.5 h-2.5 rounded-full bg-z-surface-3 border border-z-border" />
+            <span className="text-z-text-muted text-[11px] ml-2">
+              zixie-engine --cohort /benchmark/candidates/
+            </span>
+          </div>
+          <span className="text-[10px] text-z-accent uppercase font-bold tracking-wider">
+            LIVE K-GRAM SCAN
+          </span>
+        </div>
+
+        {/* Terminal Body */}
+        <div className="p-4 sm:p-5 space-y-2.5 bg-z-surface-inset text-z-text-secondary leading-relaxed">
+          <div className="flex items-center gap-2 text-z-text-muted">
+            <span className="text-z-accent font-bold">$</span>
+            <span>Parsing 8 candidate submissions across C++, Java, Python, and TypeScript...</span>
+          </div>
+
+          <div className="pl-4 border-l-2 border-z-border space-y-1 text-[11px]">
+            <div className="flex items-center gap-2 text-z-text-primary">
+              <CheckCircle2 className="w-3 h-3 text-z-clear" />
+              <span>AST normalization & identifier abstraction complete (4,290 tokens indexed)</span>
+            </div>
+            <div className="flex items-center gap-2 text-z-text-primary">
+              <CheckCircle2 className="w-3 h-3 text-z-clear" />
+              <span>Winnowing hash fingerprints (k=5, w=10) dispatched across worker threads</span>
+            </div>
+            <div className="flex items-center gap-2 text-z-text-primary">
+              <CheckCircle2 className="w-3 h-3 text-z-clear" />
+              <span>Running Karp-Rabin Greedy String Tiling (RKR-GST) tile matches calculated</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded bg-z-surface-1 border border-[var(--z-flagged)]/30 text-z-flagged-text text-xs flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <span className="w-2 h-2 rounded-full bg-z-flagged animate-ping" />
+              <span className="font-bold">COLLUSION RING #1 DETECTED:</span>
+              <span className="text-z-text-primary">candidateA ⇄ candidateB (87% structural match)</span>
+            </div>
+            <span className="font-bold font-mono text-[11px]">VERDICT: FLAGGED</span>
+          </div>
+        </div>
+      </div>
+
+      {/* 3 Core Dossier Feature Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 w-full max-w-4xl text-left">
+        <div className="p-5 rounded-md bg-z-surface-1 border border-z-border shadow-z-sm space-y-2 hover:border-z-border-strong transition-colors">
+          <div className="w-8 h-8 rounded bg-z-surface-2 border border-z-border flex items-center justify-center text-z-accent">
+            <Terminal className="w-4 h-4" />
+          </div>
+          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-z-text-primary">
+            MOSS & RKR-GST Tiling
+          </h2>
+          <p className="text-xs text-z-text-secondary leading-relaxed">
+            Lexical abstraction and substring tiling that ignores variable renaming, reordered functions, and comments.
+          </p>
+        </div>
+
+        <div className="p-5 rounded-md bg-z-surface-1 border border-z-border shadow-z-sm space-y-2 hover:border-z-border-strong transition-colors">
+          <div className="w-8 h-8 rounded bg-z-surface-2 border border-z-border flex items-center justify-center text-z-flagged">
+            <Users className="w-4 h-4" />
+          </div>
+          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-z-text-primary">
+            Collusion Ring Clustering
+          </h2>
+          <p className="text-xs text-z-text-secondary leading-relaxed">
+            Union-Find connected component graph analysis identifies syndicated groups sharing code across remote test cohorts.
+          </p>
+        </div>
+
+        <div className="p-5 rounded-md bg-z-surface-1 border border-z-border shadow-z-sm space-y-2 hover:border-z-border-strong transition-colors">
+          <div className="w-8 h-8 rounded bg-z-surface-2 border border-z-border flex items-center justify-center text-z-clear">
+            <Fingerprint className="w-4 h-4" />
+          </div>
+          <h2 className="font-mono text-xs font-bold uppercase tracking-wider text-z-text-primary">
+            Stylometric AI Detection
+          </h2>
+          <p className="text-xs text-z-text-secondary leading-relaxed">
+            Statistical entropy, burstiness, and structural symmetry metrics expose LLM code generation (ChatGPT, Claude, Copilot).
+          </p>
+        </div>
       </div>
     </div>
   );

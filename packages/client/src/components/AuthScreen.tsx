@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Shield, KeyRound, Mail, User, ArrowRight } from 'lucide-react';
+import { Shield, KeyRound, Mail, User, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Button } from './ui/button';
 
 interface AuthScreenProps {
   onSuccess: (userName: string) => void;
@@ -22,27 +23,33 @@ export function AuthScreen({ onSuccess, onBack }: AuthScreenProps) {
   };
 
   return (
-    <div className="relative z-10 w-full max-w-md animate-fade-in px-4">
-      {/* Header / Logo */}
+    <div className="relative z-10 w-full max-w-md mx-auto px-4 py-12 animate-fade-in font-sans">
+      {/* Official Header Seal */}
       <div className="text-center mb-6 space-y-2">
-        <div className="inline-flex w-12 h-12 rounded-2xl bg-purple-600/10 border border-purple-500/30 items-center justify-center text-purple-400 mb-1">
+        <div className="inline-flex w-12 h-12 rounded-md bg-z-surface-1 border border-z-border items-center justify-center text-z-accent shadow-z-sm mb-1">
           <Shield className="w-6 h-6" />
         </div>
-        <h2 className="text-2xl font-bold tracking-tight text-white">Welcome to Zixie</h2>
-        <p className="text-sm text-slate-400">Sign in to your assessment workspace</p>
+        <div className="space-y-0.5">
+          <h2 className="font-mono text-sm font-bold tracking-wider uppercase text-z-text-primary">
+            Investigator Authentication
+          </h2>
+          <p className="text-xs text-z-text-muted font-mono">
+            Proctor Security Gateway · Level 4 Clearance
+          </p>
+        </div>
       </div>
 
-      {/* Auth Card */}
-      <div className="bg-slate-900/80 border border-slate-800 rounded-2xl p-6 sm:p-8 backdrop-blur-xl shadow-2xl shadow-black/60">
-        {/* Tabs */}
-        <div className="grid grid-cols-2 p-1 bg-slate-950/60 rounded-xl mb-6 border border-slate-800/80">
+      {/* Main Dossier Form Card */}
+      <div className="bg-z-surface-1 border border-z-border rounded-lg p-6 sm:p-7 shadow-z-md space-y-5">
+        {/* Sign In / Sign Up Segmented Tabs */}
+        <div className="grid grid-cols-2 p-1 bg-z-surface-2 rounded-md border border-z-border text-xs font-mono">
           <button
             type="button"
             onClick={() => setTab('signin')}
-            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            className={`py-1.5 rounded transition-colors cursor-pointer ${
               tab === 'signin'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-z-surface-1 text-z-text-primary font-bold shadow-z-sm'
+                : 'text-z-text-muted hover:text-z-text-secondary'
             }`}
           >
             Sign In
@@ -50,85 +57,97 @@ export function AuthScreen({ onSuccess, onBack }: AuthScreenProps) {
           <button
             type="button"
             onClick={() => setTab('signup')}
-            className={`py-2 text-xs font-semibold rounded-lg transition-all cursor-pointer ${
+            className={`py-1.5 rounded transition-colors cursor-pointer ${
               tab === 'signup'
-                ? 'bg-purple-600 text-white shadow-md shadow-purple-600/20'
-                : 'text-slate-400 hover:text-slate-200'
+                ? 'bg-z-surface-1 text-z-text-primary font-bold shadow-z-sm'
+                : 'text-z-text-muted hover:text-z-text-secondary'
             }`}
           >
-            Sign Up
+            Register Proctor
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 text-xs font-mono">
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">Your Name</label>
+            <label className="block text-z-text-secondary font-medium mb-1.5 uppercase text-[10px] tracking-wider">
+              Investigator Full Name
+            </label>
             <div className="relative">
-              <User className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <User className="w-3.5 h-3.5 text-z-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 required
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="e.g. Abhijeet"
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                className="w-full bg-z-surface-inset border border-z-border rounded-md pl-9 pr-3 py-2 text-xs text-z-text-primary placeholder:text-z-text-muted focus:outline-none focus:border-z-accent transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">Work Email</label>
+            <label className="block text-z-text-secondary font-medium mb-1.5 uppercase text-[10px] tracking-wider">
+              Enterprise Work Email
+            </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-3.5 h-3.5 text-z-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="name@company.com"
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                placeholder="recruiter@company.com"
+                className="w-full bg-z-surface-inset border border-z-border rounded-md pl-9 pr-3 py-2 text-xs text-z-text-primary placeholder:text-z-text-muted focus:outline-none focus:border-z-accent transition-colors"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-slate-300 mb-1.5">Password</label>
+            <label className="block text-z-text-secondary font-medium mb-1.5 uppercase text-[10px] tracking-wider">
+              Secret Passkey
+            </label>
             <div className="relative">
-              <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <KeyRound className="w-3.5 h-3.5 text-z-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="password"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-10 pr-4 py-2.5 text-sm text-white placeholder-slate-600 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500 transition-all"
+                className="w-full bg-z-surface-inset border border-z-border rounded-md pl-9 pr-3 py-2 text-xs text-z-text-primary placeholder:text-z-text-muted focus:outline-none focus:border-z-accent transition-colors"
               />
             </div>
           </div>
 
-          <button
+          <Button
             type="submit"
-            className="w-full mt-2 py-3 px-4 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-medium text-sm flex items-center justify-center gap-2 shadow-lg shadow-purple-600/30 transition-all cursor-pointer"
+            variant="primary"
+            size="md"
+            className="w-full mt-2 font-mono text-xs justify-center"
           >
-            <span>{tab === 'signin' ? 'Sign In to Workspace' : 'Create Account'}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
+            <span>{tab === 'signin' ? 'Verify Credentials & Enter' : 'Create Proctor Dossier'}</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </Button>
         </form>
 
-        <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
+        {/* Quick Demo Access Bar */}
+        <div className="pt-3 border-t border-z-border flex items-center justify-between text-xs font-mono">
           <button
             type="button"
             onClick={onBack}
-            className="hover:text-slate-200 transition-colors cursor-pointer"
+            className="text-z-text-muted hover:text-z-text-primary flex items-center gap-1 transition-colors cursor-pointer"
           >
-            ← Back to Home
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Return to Home</span>
           </button>
+
           <button
             type="button"
             onClick={handleQuickDemo}
-            className="text-purple-400 hover:text-purple-300 font-medium cursor-pointer"
+            className="text-z-accent hover:text-z-accent-hover font-semibold flex items-center gap-1 transition-colors cursor-pointer"
           >
-            1-Click Demo Login →
+            <span>1-Click Demo Login</span>
+            <CheckCircle className="w-3.5 h-3.5" />
           </button>
         </div>
       </div>

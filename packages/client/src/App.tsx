@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ThemeProvider } from './lib/theme';
 import { LandingHero } from './components/LandingHero';
 import { AuthScreen } from './components/AuthScreen';
 import { WelcomeInterstitial } from './components/WelcomeInterstitial';
@@ -9,42 +10,51 @@ export default function App() {
   const [userName, setUserName] = useState('Abhijeet');
 
   return (
-    <div className="min-h-screen bg-[#0A0D14] text-slate-100 flex flex-col justify-center items-center relative overflow-x-hidden selection:bg-purple-600 selection:text-white">
-      {/* Background Ambience & Glows */}
-      <div className="fixed top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-purple-600/10 rounded-full blur-[140px] pointer-events-none animate-pulse-glow" />
-      <div className="fixed bottom-10 right-10 w-[400px] h-[400px] bg-teal-500/10 rounded-full blur-[120px] pointer-events-none" />
+    <ThemeProvider>
+      <div className="min-h-screen bg-z-bg text-z-text-primary transition-colors font-sans selection:bg-z-accent selection:text-white flex flex-col relative overflow-x-hidden">
+        {/* Subtle background ambient noise texture */}
+        <div className="fixed inset-0 pointer-events-none z-noise" />
 
-      {/* Stage 1: Landing Hero Entrance */}
-      {stage === 'hero' && (
-        <LandingHero onStart={() => setStage('auth')} />
-      )}
+        {/* Stage 1: Landing Hero */}
+        {stage === 'hero' && (
+          <div className="flex-1 flex flex-col items-center justify-center py-12">
+            <LandingHero onStart={() => setStage('auth')} />
+          </div>
+        )}
 
-      {/* Stage 2: Auth Screen */}
-      {stage === 'auth' && (
-        <AuthScreen
-          onSuccess={(name) => {
-            setUserName(name);
-            setStage('welcome');
-          }}
-          onBack={() => setStage('hero')}
-        />
-      )}
+        {/* Stage 2: Auth Screen */}
+        {stage === 'auth' && (
+          <div className="flex-1 flex flex-col items-center justify-center py-12">
+            <AuthScreen
+              onSuccess={(name) => {
+                setUserName(name);
+                setStage('welcome');
+              }}
+              onBack={() => setStage('hero')}
+            />
+          </div>
+        )}
 
-      {/* Stage 3: Welcome Interstitial */}
-      {stage === 'welcome' && (
-        <WelcomeInterstitial
-          userName={userName}
-          onProceed={() => setStage('dashboard')}
-        />
-      )}
+        {/* Stage 3: Welcome Interstitial */}
+        {stage === 'welcome' && (
+          <div className="flex-1 flex flex-col items-center justify-center py-12">
+            <WelcomeInterstitial
+              userName={userName}
+              onProceed={() => setStage('dashboard')}
+            />
+          </div>
+        )}
 
-      {/* Stage 4: Live Dashboard */}
-      {stage === 'dashboard' && (
-        <Dashboard
-          userName={userName}
-          onReset={() => setStage('hero')}
-        />
-      )}
-    </div>
+        {/* Stage 4: Live Dashboard Hub */}
+        {stage === 'dashboard' && (
+          <div className="w-full">
+            <Dashboard
+              userName={userName}
+              onReset={() => setStage('hero')}
+            />
+          </div>
+        )}
+      </div>
+    </ThemeProvider>
   );
 }
