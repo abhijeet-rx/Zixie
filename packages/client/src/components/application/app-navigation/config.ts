@@ -18,4 +18,8 @@ export interface NavItemDividerType {
   divider: true;
 }
 
-export type NavItemOrDivider = NavItemType | NavItemDividerType;
+export interface NavSectionHeaderType {
+  header: string;
+}
+
+export type NavItemOrDivider = NavItemType | NavItemDividerType | NavSectionHeaderType;

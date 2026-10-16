@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { ChevronDown, ChevronRight, LogOut, Search } from 'lucide-react';
-import type { NavItemType, NavItemDividerType } from '../config';
+import { ChevronDown, ChevronRight, LogOut } from 'lucide-react';
+import type { NavItemType, NavItemDividerType, NavSectionHeaderType } from '../config';
 
 interface SidebarNavigationProps {
   activeUrl?: string;
-  items: (NavItemType | NavItemDividerType)[];
+  items: (NavItemType | NavItemDividerType | NavSectionHeaderType)[];
   onNavigate?: (href: string) => void;
   user?: {
     name: string;
@@ -49,7 +49,7 @@ export function SidebarNavigationSectionDividers({
     >
       <div className="flex flex-col flex-1 overflow-y-auto">
         {/* Brand Header */}
-        <div className="p-5 pb-3 flex items-center justify-between border-b border-slate-100">
+        <div className="p-5 pb-4 flex items-center justify-between border-b border-slate-100">
           <div className="flex items-center gap-2.5">
             <div className="w-9 h-9 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-base shadow-sm shadow-blue-500/20 shrink-0">
               Z
@@ -68,25 +68,23 @@ export function SidebarNavigationSectionDividers({
           </span>
         </div>
 
-        {/* Quick Search */}
-        <div className="px-4 py-3">
-          <div className="relative">
-            <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search navigation..."
-              className="w-full pl-9 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-700 placeholder-slate-400 focus:outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition-all"
-            />
-          </div>
-        </div>
-
         {/* Navigation List */}
-        <nav className="px-3 py-2 space-y-1 flex-1">
+        <nav className="px-3 py-3 space-y-1 flex-1">
           {items.map((item, idx) => {
+            if ('header' in item && item.header) {
+              return (
+                <div key={`header-${idx}`} className="pt-4 pb-1.5 px-3 first:pt-1">
+                  <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider font-mono">
+                    {item.header}
+                  </span>
+                </div>
+              );
+            }
+
             if ('divider' in item && item.divider) {
               return (
-                <div key={`divider-${idx}`} className="py-2">
-                  <hr className="border-slate-200" />
+                <div key={`divider-${idx}`} className="py-2 px-1">
+                  <hr className="border-slate-100" />
                 </div>
               );
             }

@@ -1,62 +1,88 @@
-import { BarChartSquare02, Folder, HomeLine, LayoutAlt01, MessageChatCircle, PieChart03, Rows01, Settings01 } from "@untitledui/icons";
-import type { NavItemDividerType, NavItemType } from "@/components/application/app-navigation/config";
+import {
+  LayoutDashboard,
+  ClipboardCheck,
+  Inbox,
+  GitCompare,
+  Bot,
+  FileText,
+  Users,
+  Boxes,
+  Settings,
+} from 'lucide-react';
+import type { NavItemOrDivider } from "@/components/application/app-navigation/config";
 import { SidebarNavigationSectionDividers } from "@/components/application/app-navigation/sidebar-navigation/sidebar-section-dividers";
-import { BadgeWithDot } from "@/components/base/badges/badges";
 
-export const navItemsWithDividers: (NavItemType | NavItemDividerType)[] = [
-    {
-        label: "Home",
-        href: "/",
-        icon: HomeLine,
-    },
-    {
-        label: "Dashboard",
-        href: "/dashboard",
-        icon: BarChartSquare02,
-    },
-    {
-        label: "Projects",
-        href: "/projects",
-        icon: Rows01,
-    },
-    { divider: true },
-    {
-        label: "Folders",
-        icon: Folder,
-        href: "/folders",
-        items: [
-            { label: "View all", badge: 18, href: "/folders/view-all" },
-            { label: "Recent", badge: 8, href: "/folders/recent" },
-            { label: "Favorites", badge: 6, href: "/folders/favorites" },
-            { label: "Shared", badge: 4, href: "/folders/shared" },
-        ],
-    },
-    { divider: true },
-    {
-        label: "Reporting",
-        href: "/reporting",
-        icon: PieChart03,
-    },
-    {
-        label: "Settings",
-        href: "/settings",
-        icon: Settings01,
-    },
-    {
-        label: "Support",
-        href: "/support",
-        icon: MessageChatCircle,
-        badge: (
-            <BadgeWithDot color="success" type="modern" size="sm">
-                Online
-            </BadgeWithDot>
-        ),
-    },
-    {
-        label: "Open in browser",
-        href: "https://www.untitledui.com/",
-        icon: LayoutAlt01,
-    },
+export const navItemsWithDividers: NavItemOrDivider[] = [
+  { header: 'WORKSPACE' },
+  {
+    label: 'Overview',
+    href: '/overview',
+    icon: LayoutDashboard,
+  },
+  {
+    label: 'Assessments',
+    href: '/assessments',
+    icon: ClipboardCheck,
+    badge: (
+      <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+        4
+      </span>
+    ),
+  },
+  {
+    label: 'Submissions',
+    href: '/submissions',
+    icon: Inbox,
+    badge: (
+      <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-blue-100 text-blue-700 rounded-md border border-blue-200">
+        8
+      </span>
+    ),
+  },
+  {
+    label: 'Similarity Analysis',
+    href: '/similarity',
+    icon: GitCompare,
+  },
+  {
+    label: 'AI Detection',
+    href: '/ai-detection',
+    icon: Bot,
+    badge: (
+      <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-purple-100 text-purple-700 rounded-md border border-purple-200">
+        AI
+      </span>
+    ),
+  },
+  {
+    label: 'Reports',
+    href: '/reports',
+    icon: FileText,
+  },
+  { divider: true },
+  { header: 'ADMINISTRATION' },
+  {
+    label: 'Team & Members',
+    href: '/admin/team',
+    icon: Users,
+    badge: (
+      <span className="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-slate-100 text-slate-600 rounded-md border border-slate-200">
+        6
+      </span>
+    ),
+  },
+  {
+    label: 'Integrations',
+    href: '/admin/integrations',
+    icon: Boxes,
+  },
+  {
+    label: 'Settings',
+    href: '/admin/settings',
+    icon: Settings,
+  },
 ];
 
-export const SidebarSectionDividersDemo = () => <SidebarNavigationSectionDividers activeUrl="/" items={navItemsWithDividers} />;
+export const SidebarSectionDividersDemo = () => (
+  <SidebarNavigationSectionDividers activeUrl="/overview" items={navItemsWithDividers} />
+);
