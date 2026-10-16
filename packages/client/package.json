@@ -16,6 +16,7 @@
     "@radix-ui/react-tooltip": "^1.4.1",
     "@tanstack/react-query": "^5.104.2",
     "@tanstack/react-table": "^8.21.3",
+    "@untitledui/icons": "^0.0.23",
     "@zixie/engine": "^0.1.0",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",

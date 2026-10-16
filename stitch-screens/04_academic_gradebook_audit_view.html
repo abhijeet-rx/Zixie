@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>CS 401: Data Structures - Integrity Audit Gradebook</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+              800: '#1e40af',
+              900: '#1e3a8a',
+            }
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body { font-family: 'Inter', system-ui, sans-serif; }
+    .font-display { font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; }
+  </style>
+</head>
+<body class="bg-[#F9FAFB] text-slate-800 min-h-screen antialiased flex flex-col">
+<!-- Top Academic Navigation Bar -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<!-- Course Logo & Branding -->
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-lg bg-brand-600 text-white flex items-center justify-center font-display font-bold text-base shadow-sm">
+          CS
+        </div>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-display font-bold text-slate-900 text-base">Department of Computer Science</span>
+<span class="text-xs px-2 py-0.5 rounded-full bg-slate-100 text-slate-600 font-medium border border-slate-200">Instructor Portal</span>
+</div>
+<p class="text-xs text-slate-500">Academic Integrity &amp; Submission Review Portal</p>
+</div>
+</div>
+<!-- Instructor Info & Global Actions -->
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center gap-2 text-xs text-slate-500 bg-slate-50 border border-slate-200 px-3 py-1.5 rounded-lg">
+<span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Cohort Sync: Active</span>
+<span class="text-slate-300">|</span>
+<span>Term: Fall 2024</span>
+</div>
+<div class="flex items-center gap-3 border-l border-slate-200 pl-4">
+<div class="text-right hidden md:block">
+<p class="text-xs font-semibold text-slate-900">Prof. Abhijeet Sharma</p>
+<p class="text-[11px] text-slate-500">Lead Instructor (CS 401)</p>
+</div>
+<img alt="Instructor Profile" class="w-8 h-8 rounded-full border border-slate-300 object-cover" src="https://lh3.googleusercontent.com/aida/AEtjO1USn3-BVb2OxmIYHAmMFs169_UhTu6G4hy0mLMn95I4egb2Bh0WUIIfyw6duSTK7F48qW9svJ9yRKtZP-VyDbdR2xieHQUZvDMPxfbiN8pc72dMrRVTIlLcI5YLzHVwf0hMf3ZVsnLr95YyFwaSS36bLmkugUaLOUfgtxtdt29MclTzjzy7OnG2YS5fibycoUiJQmdU1fEEAItZUAr7-9R6SY4CNBw6amlk9lwjdo9CaXVEM3Ifzr6RsA"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Gradebook Dashboard Container -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-6">
+<!-- Header: Course Title & Overview Stats -->
+<div class="bg-white rounded-xl border border-slate-200 p-6 shadow-sm">
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-100 pb-5">
+<div>
+<div class="flex items-center gap-2 text-xs text-brand-600 font-semibold uppercase tracking-wider mb-1">
+<span class="material-symbols-outlined text-sm">school</span>
+<span>Course Examination Integrity Audit</span>
+</div>
+<h1 class="font-display text-2xl font-bold text-slate-900 tracking-tight">
+            CS 401: Data Structures - Integrity Audit
+          </h1>
+<p class="text-sm text-slate-500 mt-1 flex items-center gap-2">
+<span>Assignment 3: Self-Balancing Trees &amp; Binary Search</span>
+<span class="text-slate-300">•</span>
+<span class="flex items-center gap-1"><span class="material-symbols-outlined text-xs">calendar_today</span> Oct 18 – Oct 24, 2024</span>
+</p>
+</div>
+<div class="flex items-center gap-2.5">
+<button class="inline-flex items-center gap-1.5 px-3 py-2 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 shadow-sm transition">
+<span class="material-symbols-outlined text-sm text-slate-500">file_download</span>
+<span>Export Roster CSV</span>
+</button>
+<button class="inline-flex items-center gap-1.5 px-3.5 py-2 text-xs font-semibold rounded-lg bg-brand-600 text-white hover:bg-brand-700 shadow-sm transition">
+<span class="material-symbols-outlined text-sm">check_circle</span>
+<span>Submit Grade Roster</span>
+</button>
+</div>
+</div>
+<!-- Cohort Summary Stats -->
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-5">
+<div class="p-3.5 rounded-lg bg-slate-50 border border-slate-200/70">
+<p class="text-xs text-slate-500 font-medium">Total Exam Submissions</p>
+<p class="text-2xl font-display font-bold text-slate-900 mt-1">142</p>
+<p class="text-[11px] text-slate-500 mt-0.5">100% evaluated across 2 sections</p>
+</div>
+<div class="p-3.5 rounded-lg bg-emerald-50/70 border border-emerald-200">
+<p class="text-xs text-emerald-800 font-medium">Verified Clean</p>
+<p class="text-2xl font-display font-bold text-emerald-700 mt-1">134</p>
+<p class="text-[11px] text-emerald-600 mt-0.5">94.3% under threshold (&lt;20%)</p>
+</div>
+<div class="p-3.5 rounded-lg bg-amber-50/70 border border-amber-200">
+<p class="text-xs text-amber-800 font-medium">AI Synthetic Matches</p>
+<p class="text-2xl font-display font-bold text-amber-700 mt-1">2</p>
+<p class="text-[11px] text-amber-600 mt-0.5">Flagged for instructor interview</p>
+</div>
+<div class="p-3.5 rounded-lg bg-rose-50/70 border border-rose-200">
+<p class="text-xs text-rose-800 font-medium">Peer Collusion Flagged</p>
+<p class="text-2xl font-display font-bold text-rose-700 mt-1">3</p>
+<p class="text-[11px] text-rose-600 mt-0.5">Score &gt;50% · Action required</p>
+</div>
+</div>
+</div>
+<!-- Top Action Bar & Filter Toolbar -->
+<div class="bg-white rounded-xl border border-slate-200 p-4 shadow-sm flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+<!-- Search Input -->
+<div class="relative flex-1 max-w-md">
+<span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-slate-400">
+<span class="material-symbols-outlined text-lg">search</span>
+</span>
+<input class="w-full pl-9 pr-4 py-2 text-sm bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder:text-slate-400 focus:bg-white focus:border-brand-500 focus:ring-1 focus:ring-brand-500 outline-none transition" id="studentSearchInput" placeholder="Search by student name, ID or submission file..." type="text"/>
+</div>
+<!-- Filters: Section & Status Filter Pills -->
+<div class="flex flex-wrap items-center gap-3">
+<!-- Section Filter -->
+<div class="flex items-center gap-2 text-xs">
+<span class="text-slate-500 font-medium">Section:</span>
+<select class="text-xs bg-white border border-slate-200 rounded-lg py-1.5 px-2.5 text-slate-700 font-medium focus:ring-brand-500 focus:border-brand-500" id="sectionFilter">
+<option value="all">All Sections (A &amp; B)</option>
+<option value="Lecture A">Lecture A (MWF 10:00 AM)</option>
+<option value="Lecture B">Lecture B (TTh 02:00 PM)</option>
+</select>
+</div>
+<div class="h-4 w-px bg-slate-200 hidden sm:block"></div>
+<!-- Status Filter Pills -->
+<div class="flex items-center gap-1 bg-slate-100 p-1 rounded-lg text-xs font-medium">
+<button class="status-filter-btn px-2.5 py-1 rounded-md bg-white text-slate-800 shadow-sm" data-status="all">
+            All (8)
+          </button>
+<button class="status-filter-btn px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900" data-status="Flagged">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-rose-500 mr-1"></span>Flagged (3)
+          </button>
+<button class="status-filter-btn px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900" data-status="AI Detected">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 mr-1"></span>AI Detected (1)
+          </button>
+<button class="status-filter-btn px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900" data-status="Clear">
+<span class="inline-block w-1.5 h-1.5 rounded-full bg-emerald-500 mr-1"></span>Clean (4)
+          </button>
+</div>
+</div>
+</div>
+<!-- Main View: Academic Roster Gradebook Table -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden">
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50/90 border-b border-slate-200 text-xs font-semibold text-slate-600 uppercase tracking-wider">
+<th class="py-3.5 px-4 w-12 text-center" scope="col">#</th>
+<th class="py-3.5 px-4" scope="col">Student (Name &amp; ID)</th>
+<th class="py-3.5 px-4" scope="col">Section</th>
+<th class="py-3.5 px-4" scope="col">Assignment File</th>
+<th class="py-3.5 px-4 w-52" scope="col">Plagiarism Score</th>
+<th class="py-3.5 px-4" scope="col">Suspected Source</th>
+<th class="py-3.5 px-4" scope="col">Status</th>
+<th class="py-3.5 px-4 text-right" scope="col">Actions</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-200/80 text-sm text-slate-700 font-normal">
+<!-- Student 1: Alice Chen (High Risk Collusion) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture A" data-status="Flagged">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">01</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    AC
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Alice Chen</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-091</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture A</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>Solution.py</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">3.4 KB · Submitted Oct 24, 09:14</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-semibold mb-1">
+<span class="text-rose-700">89%</span>
+<span class="text-[11px] font-normal text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">Critical match</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-rose-500 h-2 rounded-full" style="width: 89%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1 text-xs text-rose-900 bg-rose-50 px-2 py-1 rounded-md border border-rose-200 font-medium">
+<span class="material-symbols-outlined text-xs text-rose-600">group</span>
+<span>Peer: Bob Miller</span>
+</div>
+<div class="text-[11px] text-slate-500 mt-1">Shared CFG across 5 functions</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                  Action Required
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition" onclick="openDiffModal('Alice Chen', 'Bob Miller', 'Solution.py', 'BinarySearch.py')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200" title="Mark as Resolved">
+<span class="material-symbols-outlined text-sm">done</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 2: Bob Miller (High Risk Collusion) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture A" data-status="Flagged">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">02</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    BM
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Bob Miller</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-044</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture A</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>BinarySearch.py</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">3.1 KB · Submitted Oct 24, 09:18</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-semibold mb-1">
+<span class="text-rose-700">89%</span>
+<span class="text-[11px] font-normal text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">Critical match</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-rose-500 h-2 rounded-full" style="width: 89%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1 text-xs text-rose-900 bg-rose-50 px-2 py-1 rounded-md border border-rose-200 font-medium">
+<span class="material-symbols-outlined text-xs text-rose-600">group</span>
+<span>Peer: Alice Chen</span>
+</div>
+<div class="text-[11px] text-slate-500 mt-1">Isomorphic syntax tree clone</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                  Action Required
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition" onclick="openDiffModal('Bob Miller', 'Alice Chen', 'BinarySearch.py', 'Solution.py')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200" title="Mark as Resolved">
+<span class="material-symbols-outlined text-sm">done</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 3: Dave Vance (High Risk Collusion) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture B" data-status="Flagged">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">03</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    DV
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Dave Vance</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-108</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture B</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>SearchAlgorithm.py</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">3.8 KB · Submitted Oct 24, 09:22</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-semibold mb-1">
+<span class="text-rose-700">82%</span>
+<span class="text-[11px] font-normal text-rose-600 bg-rose-50 px-1.5 py-0.2 rounded border border-rose-200">Cluster ring</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-rose-500 h-2 rounded-full" style="width: 82%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1 text-xs text-rose-900 bg-rose-50 px-2 py-1 rounded-md border border-rose-200 font-medium">
+<span class="material-symbols-outlined text-xs text-rose-600">group</span>
+<span>Peers: Alice &amp; Bob</span>
+</div>
+<div class="text-[11px] text-slate-500 mt-1">Variable renames (l, r, key)</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-rose-100 text-rose-800 border border-rose-200">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-600"></span>
+                  Action Required
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-brand-700 bg-brand-50 hover:bg-brand-100 border border-brand-200 transition" onclick="openDiffModal('Dave Vance', 'Alice Chen', 'SearchAlgorithm.py', 'Solution.py')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200" title="Mark as Resolved">
+<span class="material-symbols-outlined text-sm">done</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 4: Frank Alvarez (AI Detected) -->
+<tr class="roster-row bg-amber-50/20 hover:bg-amber-50/50 transition-colors" data-section="Lecture A" data-status="AI Detected">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">04</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-amber-100 text-amber-800 font-semibold flex items-center justify-center text-xs border border-amber-200">
+                    FA
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Frank Alvarez</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-077</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture A</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-amber-600 text-base">smart_toy</span>
+<span>SolutionAI.py</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">5.2 KB · Submitted Oct 24, 09:31</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-semibold mb-1">
+<span class="text-amber-800">94%</span>
+<span class="text-[11px] font-normal text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded border border-amber-200">AI Likelihood</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-amber-500 h-2 rounded-full" style="width: 94%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="inline-flex items-center gap-1 text-xs text-amber-900 bg-amber-100/70 px-2 py-1 rounded-md border border-amber-200 font-medium">
+<span class="material-symbols-outlined text-xs text-amber-700">psychology</span>
+<span>Claude 3.5 Sonnet</span>
+</div>
+<div class="text-[11px] text-slate-500 mt-1">High docstring entropy &amp; syntax pattern</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-amber-100 text-amber-800 border border-amber-200">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-600"></span>
+                  In Review
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-amber-900 bg-amber-100/70 hover:bg-amber-200/80 border border-amber-300 transition" onclick="openDiffModal('Frank Alvarez', 'Synthetic Benchmark', 'SolutionAI.py', 'Claude-3.5-Template.py')">
+<span class="material-symbols-outlined text-xs">analytics</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-500 hover:text-slate-800 hover:bg-slate-100 border border-slate-200" title="Mark as Resolved">
+<span class="material-symbols-outlined text-sm">done</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 5: Charlie Zhang (Clear) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture B" data-status="Clear">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">05</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    CZ
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Charlie Zhang</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-019</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture B</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>SearchImpl.cpp</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">4.1 KB · Submitted Oct 24, 09:34</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-medium mb-1">
+<span class="text-emerald-700">12%</span>
+<span class="text-[11px] text-slate-500">Normal boiler</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-emerald-500 h-2 rounded-full" style="width: 12%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="text-xs text-slate-500 italic">None detected</span>
+<div class="text-[11px] text-slate-400 mt-0.5">Autonomous code structure</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  Clear
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition" onclick="openDiffModal('Charlie Zhang', 'Standard Boilerplate', 'SearchImpl.cpp', 'CS401-Starter.cpp')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200" title="Already Clear">
+<span class="material-symbols-outlined text-sm">check</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 6: Elena Rostova (Clear) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture A" data-status="Clear">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">06</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    ER
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Elena Rostova</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-083</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture A</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>Solution.java</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">6.0 KB · Submitted Oct 24, 09:38</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-medium mb-1">
+<span class="text-emerald-700">15%</span>
+<span class="text-[11px] text-slate-500">Method signatures</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-emerald-500 h-2 rounded-full" style="width: 15%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="text-xs text-slate-500 italic">None detected</span>
+<div class="text-[11px] text-slate-400 mt-0.5">Custom algorithm implementation</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  Clear
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition" onclick="openDiffModal('Elena Rostova', 'Standard Boilerplate', 'Solution.java', 'CS401-Starter.java')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200" title="Already Clear">
+<span class="material-symbols-outlined text-sm">check</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 7: Grace Hopper (Clear) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture B" data-status="Clear">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">07</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    GH
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Grace Hopper</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-002</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture B</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>TreeSearch.py</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">4.8 KB · Submitted Oct 24, 08:50</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-medium mb-1">
+<span class="text-emerald-700">7%</span>
+<span class="text-[11px] text-slate-500">Autonomous</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-emerald-500 h-2 rounded-full" style="width: 7%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="text-xs text-slate-500 italic">None detected</span>
+<div class="text-[11px] text-slate-400 mt-0.5">High original entropy</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  Clear
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition" onclick="openDiffModal('Grace Hopper', 'Standard Boilerplate', 'TreeSearch.py', 'CS401-Starter.py')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200" title="Already Clear">
+<span class="material-symbols-outlined text-sm">check</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Student 8: Marcus Brody (Clear) -->
+<tr class="roster-row hover:bg-slate-50/80 transition-colors" data-section="Lecture A" data-status="Clear">
+<td class="py-3.5 px-4 text-center text-xs text-slate-400 font-mono">08</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-full bg-slate-100 text-slate-700 font-semibold flex items-center justify-center text-xs border border-slate-200">
+                    MB
+                  </div>
+<div>
+<div class="font-semibold text-slate-900">Marcus Brody</div>
+<div class="text-xs text-slate-500 font-mono">ID: #STD-063</div>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-4 text-xs text-slate-600">Lecture A</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-1.5 text-xs font-mono text-slate-800">
+<span class="material-symbols-outlined text-slate-400 text-base">description</span>
+<span>AvlTreeImpl.py</span>
+</div>
+<div class="text-[11px] text-slate-400 mt-0.5">3.9 KB · Submitted Oct 24, 09:41</div>
+</td>
+<td class="py-3.5 px-4">
+<div class="flex items-center justify-between text-xs font-medium mb-1">
+<span class="text-emerald-700">14%</span>
+<span class="text-[11px] text-slate-500">Autonomous</span>
+</div>
+<div class="w-full bg-slate-100 rounded-full h-2 overflow-hidden border border-slate-200/60">
+<div class="bg-emerald-500 h-2 rounded-full" style="width: 14%;"></div>
+</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="text-xs text-slate-500 italic">None detected</span>
+<div class="text-[11px] text-slate-400 mt-0.5">Distinct recursion approach</div>
+</td>
+<td class="py-3.5 px-4">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+                  Clear
+                </span>
+</td>
+<td class="py-3.5 px-4 text-right">
+<div class="inline-flex items-center gap-1.5 justify-end">
+<button class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium rounded-lg text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 transition" onclick="openDiffModal('Marcus Brody', 'Standard Boilerplate', 'AvlTreeImpl.py', 'CS401-Starter.py')">
+<span class="material-symbols-outlined text-xs">visibility</span>
+<span>View Code</span>
+</button>
+<button class="resolve-btn inline-flex items-center p-1.5 text-xs font-medium rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 border border-slate-200" title="Already Clear">
+<span class="material-symbols-outlined text-sm">check</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Gradebook Table Footer / Pagination -->
+<div class="bg-slate-50 px-4 py-3 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
+<div>
+<span>Showing <strong class="text-slate-700 font-semibold" id="displayedCount">8</strong> of 8 exam entries</span>
+<span class="mx-2 text-slate-300">|</span>
+<span>Score bands: <strong class="text-emerald-700 font-semibold">&lt;20% Low</strong>, <strong class="text-amber-700 font-semibold">20–50% Moderate</strong>, <strong class="text-rose-700 font-semibold">&gt;50% Critical</strong></span>
+</div>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 border border-slate-200 bg-white rounded-md text-slate-400 cursor-not-allowed" disabled="">Previous</button>
+<span class="px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-md font-semibold">1</span>
+<button class="px-2.5 py-1 border border-slate-200 bg-white rounded-md text-slate-400 cursor-not-allowed" disabled="">Next</button>
+</div>
+</div>
+</div>
+</main>
+<!-- Clean Academic Code Comparison Modal -->
+<div class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4" id="codeModal">
+<div class="bg-white rounded-xl shadow-xl border border-slate-200 w-full max-w-4xl overflow-hidden flex flex-col max-h-[85vh]">
+<!-- Modal Header -->
+<div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50/70">
+<div class="flex items-center gap-3">
+<div class="w-8 h-8 rounded-lg bg-brand-50 text-brand-700 border border-brand-200 flex items-center justify-center">
+<span class="material-symbols-outlined text-lg">difference</span>
+</div>
+<div>
+<h3 class="font-display font-bold text-slate-900 text-base" id="modalTitle">Submission Comparison</h3>
+<p class="text-xs text-slate-500" id="modalSubtitle">CS 401 Assignment 3 Code Inspection</p>
+</div>
+</div>
+<button class="p-1 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition" onclick="closeDiffModal()">
+<span class="material-symbols-outlined">close</span>
+</button>
+</div>
+<!-- Modal Body: Side-by-Side Clean Diff -->
+<div class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/30">
+<!-- Left Panel: Target Student -->
+<div class="bg-white rounded-lg border border-slate-200 p-4 shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-100">
+<span class="font-semibold text-xs text-slate-900" id="studentLeftName">Student Submission</span>
+<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600" id="fileLeftName">Solution.py</span>
+</div>
+<pre class="text-xs font-mono text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200/80 leading-relaxed overflow-x-auto"><span class="text-slate-400">01 |</span> <span class="text-blue-600 font-semibold">def</span> solve_query(arr, target):
+<span class="text-slate-400">02 |</span>     <span class="text-slate-400"># Initialize boundaries</span>
+<span class="text-slate-400">03 |</span>     <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">left = 0</span>
+<span class="text-slate-400">04 |</span>     <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">right = len(arr) - 1</span>
+<span class="text-slate-400">05 |</span>     
+<span class="text-slate-400">06 |</span>     <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">while left &lt;= right:</span>
+<span class="text-slate-400">07 |</span>         <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">pivot = left + (right - left) // 2</span>
+<span class="text-slate-400">08 |</span>         <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">if arr[pivot] == target:</span>
+<span class="text-slate-400">09 |</span>             <span class="text-blue-600 font-semibold">return</span> pivot
+<span class="text-slate-400">10 |</span>         <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">elif arr[pivot] &lt; target:</span>
+<span class="text-slate-400">11 |</span>             left = pivot + 1
+<span class="text-slate-400">12 |</span>         <span class="text-blue-600 font-semibold">else:</span>
+<span class="text-slate-400">13 |</span>             right = pivot - 1
+<span class="text-slate-400">14 |</span>     <span class="text-blue-600 font-semibold">return</span> -1</pre>
+</div>
+<!-- Right Panel: Compared Source -->
+<div class="bg-white rounded-lg border border-slate-200 p-4 shadow-sm flex flex-col">
+<div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-100">
+<span class="font-semibold text-xs text-slate-900" id="studentRightName">Suspected Source</span>
+<span class="text-[11px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-600" id="fileRightName">BinarySearch.py</span>
+</div>
+<pre class="text-xs font-mono text-slate-800 bg-slate-50 p-3 rounded-lg border border-slate-200/80 leading-relaxed overflow-x-auto"><span class="text-slate-400">01 |</span> <span class="text-blue-600 font-semibold">def</span> binarySearch(nums, key):
+<span class="text-slate-400">02 |</span>     <span class="text-slate-400"># Renamed pointer variables</span>
+<span class="text-slate-400">03 |</span>     <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">l = 0</span>
+<span class="text-slate-400">04 |</span>     <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">r = len(nums) - 1</span>
+<span class="text-slate-400">05 |</span>     
+<span class="text-slate-400">06 |</span>     <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">while l &lt;= r:</span>
+<span class="text-slate-400">07 |</span>         <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">p = l + (r - l) // 2</span>
+<span class="text-slate-400">08 |</span>         <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">if nums[p] == key:</span>
+<span class="text-slate-400">09 |</span>             <span class="text-blue-600 font-semibold">return</span> p
+<span class="text-slate-400">10 |</span>         <span class="bg-rose-100 text-rose-900 px-1 rounded font-semibold">elif nums[p] &lt; key:</span>
+<span class="text-slate-400">11 |</span>             l = p + 1
+<span class="text-slate-400">12 |</span>         <span class="text-blue-600 font-semibold">else:</span>
+<span class="text-slate-400">13 |</span>             r = p - 1
+<span class="text-slate-400">14 |</span>     <span class="text-blue-600 font-semibold">return</span> -1</pre>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="px-6 py-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between">
+<div class="flex items-center gap-2 text-xs text-slate-500">
+<span class="material-symbols-outlined text-sm text-slate-400">info</span>
+<span>Matched Lines 03–10 share identical AST structure despite variable identifier substitutions.</span>
+</div>
+<div class="flex items-center gap-2">
+<button class="px-3.5 py-1.5 text-xs font-semibold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50" onclick="closeDiffModal()">
+            Close
+          </button>
+<button class="px-3.5 py-1.5 text-xs font-semibold rounded-lg bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm" onclick="markModalResolved()">
+            Mark as Resolved
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- Academic Footer -->
+<footer class="bg-white border-t border-slate-200 mt-auto">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-500 gap-2">
+<div class="flex items-center gap-2">
+<span class="font-semibold text-slate-700">University Faculty Gradebook System</span>
+<span>•</span>
+<span>CS 401 Section Audit Service</span>
+</div>
+<div class="flex items-center gap-3">
+<span>Confidential Student Record — FERPA Compliant</span>
+<span>•</span>
+<span>Build 2024.10</span>
+</div>
+</div>
+</footer>
+<!-- Script for Filtering, Search & Modal Interactivity -->
+<script>
+    const searchInput = document.getElementById('studentSearchInput');
+    const sectionFilter = document.getElementById('sectionFilter');
+    const filterButtons = document.querySelectorAll('.status-filter-btn');
+    const tableRows = document.querySelectorAll('.roster-row');
+    const displayedCount = document.getElementById('displayedCount');
+
+    let currentStatus = 'all';
+    let currentSection = 'all';
+
+    function applyFilters() {
+      const query = (searchInput.value || '').toLowerCase().trim();
+      let visible = 0;
+
+      tableRows.forEach(row => {
+        const rowStatus = row.getAttribute('data-status');
+        const rowSection = row.getAttribute('data-section');
+        const text = row.innerText.toLowerCase();
+
+        const matchesStatus = (currentStatus === 'all') || (rowStatus === currentStatus);
+        const matchesSection = (currentSection === 'all') || (rowSection === currentSection);
+        const matchesSearch = (!query) || text.includes(query);
+
+        if (matchesStatus && matchesSection && matchesSearch) {
+          row.style.display = '';
+          visible++;
+        } else {
+          row.style.display = 'none';
+        }
+      });
+
+      if (displayedCount) {
+        displayedCount.textContent = visible;
+      }
+    }
+
+    // Filter Buttons
+    filterButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        filterButtons.forEach(b => {
+          b.classList.remove('bg-white', 'text-slate-800', 'shadow-sm');
+          b.classList.add('text-slate-600');
+        });
+        btn.classList.add('bg-white', 'text-slate-800', 'shadow-sm');
+        btn.classList.remove('text-slate-600');
+        currentStatus = btn.getAttribute('data-status');
+        applyFilters();
+      });
+    });
+
+    // Section Selector
+    sectionFilter.addEventListener('change', (e) => {
+      currentSection = e.target.value;
+      applyFilters();
+    });
+
+    // Search Input
+    searchInput.addEventListener('input', applyFilters);
+
+    // Modal Control
+    const codeModal = document.getElementById('codeModal');
+
+    function openDiffModal(student1, student2, file1, file2) {
+      document.getElementById('modalTitle').textContent = `${student1} vs. ${student2}`;
+      document.getElementById('modalSubtitle').textContent = `Inspecting ${file1} & ${file2}`;
+      document.getElementById('studentLeftName').textContent = student1;
+      document.getElementById('fileLeftName').textContent = file1;
+      document.getElementById('studentRightName').textContent = student2;
+      document.getElementById('fileRightName').textContent = file2;
+
+      codeModal.classList.remove('hidden');
+      codeModal.classList.add('flex');
+    }
+
+    function closeDiffModal() {
+      codeModal.classList.add('hidden');
+      codeModal.classList.remove('flex');
+    }
+
+    function markModalResolved() {
+      alert('Investigation noted and marked as resolved in the gradebook roster.');
+      closeDiffModal();
+    }
+
+    // Inline Mark as Resolved button behavior
+    document.querySelectorAll('.resolve-btn').forEach(btn => {
+      btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        const row = this.closest('tr');
+        const statusCell = row.querySelector('td:nth-child(7)');
+        statusCell.innerHTML = `
+          <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-xs font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">
+            <span class="w-1.5 h-1.5 rounded-full bg-emerald-600"></span>
+            Resolved
+          </span>
+        `;
+        this.classList.add('text-emerald-600', 'bg-emerald-50');
+        this.setAttribute('title', 'Marked Resolved');
+      });
+    });
+  </script>
+</body></html>

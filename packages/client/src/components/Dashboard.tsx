@@ -24,9 +24,10 @@ import type { CohortAnalysisReport, CompareResponse } from '../lib/types';
 interface DashboardProps {
   userName: string;
   onReset: () => void;
+  onSwitchToStitch?: () => void;
 }
 
-export function Dashboard({ userName, onReset }: DashboardProps) {
+export function Dashboard({ userName, onReset, onSwitchToStitch }: DashboardProps) {
   const [report, setReport] = useState<CohortAnalysisReport | null>(null);
   const [reportId, setReportId] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -118,6 +119,7 @@ export function Dashboard({ userName, onReset }: DashboardProps) {
         onReloadBenchmark={loadDemo}
         onResetSession={onReset}
         onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+        onSwitchToStitch={onSwitchToStitch}
       />
 
       <main className="max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6 flex-1">

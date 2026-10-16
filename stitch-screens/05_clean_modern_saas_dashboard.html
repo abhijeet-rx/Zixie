@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zixie — Submission Integrity Review</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Plus+Jakarta+Sans:wght@500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Plus Jakarta Sans', 'Inter', 'sans-serif'],
+          },
+          colors: {
+            brand: {
+              50: '#eff6ff',
+              100: '#dbeafe',
+              500: '#3b82f6',
+              600: '#2563eb',
+              700: '#1d4ed8',
+            }
+          }
+        }
+      }
+    };
+  </script>
+</head>
+<body class="bg-[#F8FAFC] text-slate-800 font-sans min-h-screen flex flex-col antialiased selection:bg-blue-100 selection:text-blue-900">
+<!-- 1. TOP NAVIGATION -->
+<header class="sticky top-0 z-40 bg-white border-b border-slate-200">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+<!-- Left: Logo & Cohort Selector -->
+<div class="flex items-center gap-6">
+<a class="flex items-center gap-2 text-slate-900 font-display font-bold text-lg tracking-tight" href="#">
+<div class="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center text-white font-semibold text-sm shadow-sm shadow-blue-500/20">
+            Z
+          </div>
+<span>Zixie</span>
+</a>
+<div class="h-5 w-px bg-slate-200 hidden sm:block"></div>
+<!-- Cohort Switcher Dropdown -->
+<div class="relative inline-block text-left">
+<button class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50/60 hover:bg-slate-100/70 text-slate-700 text-sm font-medium transition-colors" type="button">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>CS401 Fall 2024</span>
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+</button>
+</div>
+</div>
+<!-- Right: Search, Notifications & Avatar -->
+<div class="flex items-center gap-3">
+<!-- Search bar -->
+<div class="relative hidden md:block w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-lg">search</span>
+<input class="w-full pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all" placeholder="Search student or file..." type="text"/>
+</div>
+<!-- Notification bell -->
+<button aria-label="Notifications" class="w-9 h-9 rounded-lg border border-slate-200 hover:bg-slate-50 flex items-center justify-center text-slate-600 transition-colors relative">
+<span class="material-symbols-outlined text-xl">notifications</span>
+<span class="absolute top-2 right-2 w-2 h-2 rounded-full bg-blue-600 ring-2 ring-white"></span>
+</button>
+<!-- Divider -->
+<div class="h-6 w-px bg-slate-200 mx-1"></div>
+<!-- User profile -->
+<div class="flex items-center gap-2.5 pl-1">
+<img alt="Abhijeet" class="w-8 h-8 rounded-full object-cover border border-slate-200" src="https://lh3.googleusercontent.com/aida/AEtjO1USn3-BVb2OxmIYHAmMFs169_UhTu6G4hy0mLMn95I4egb2Bh0WUIIfyw6duSTK7F48qW9svJ9yRKtZP-VyDbdR2xieHQUZvDMPxfbiN8pc72dMrRVTIlLcI5YLzHVwf0hMf3ZVsnLr95YyFwaSS36bLmkugUaLOUfgtxtdt29MclTzjzy7OnG2YS5fibycoUiJQmdU1fEEAItZUAr7-9R6SY4CNBw6amlk9lwjdo9CaXVEM3Ifzr6RsA"/>
+<div class="hidden sm:flex flex-col text-left">
+<span class="text-sm font-medium text-slate-800 leading-tight">Abhijeet</span>
+<span class="text-xs text-slate-400 leading-tight">Instructor</span>
+</div>
+</div>
+</div>
+</div>
+</header>
+<!-- MAIN CONTAINER -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full flex-1 flex flex-col gap-8">
+<!-- 2. PAGE HEADER -->
+<div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+<div>
+<h1 class="text-2xl sm:text-3xl font-display font-bold text-slate-900 tracking-tight">
+          Submission Integrity Review
+        </h1>
+<p class="mt-1 text-sm text-slate-500">
+          Automated code plagiarism and AI detection for CS401 Fall Cohort
+        </p>
+</div>
+<div class="flex items-center gap-2.5">
+<button class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-medium shadow-sm transition-colors">
+<span class="material-symbols-outlined text-lg text-slate-500">download</span>
+<span>Export Report</span>
+</button>
+<button class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium shadow-sm shadow-blue-600/20 transition-colors">
+<span class="material-symbols-outlined text-lg">upload_file</span>
+<span>Upload Submissions</span>
+</button>
+</div>
+</div>
+<!-- 3. STAT CARDS (4 Columns) -->
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+<!-- Card 1 -->
+<div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center justify-between text-slate-500 text-xs font-medium uppercase tracking-wide">
+<span>Submissions</span>
+<span class="material-symbols-outlined text-slate-400 text-xl">folder_open</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-3xl font-display font-bold text-slate-900">8</span>
+<span class="text-xs text-slate-500">Total Files</span>
+</div>
+<div class="mt-2 text-xs text-slate-500 flex items-center gap-1.5">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+<span>28 pairwise comparisons</span>
+</div>
+</div>
+<!-- Card 2 -->
+<div class="bg-white rounded-xl border border-slate-200 p-5 shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center justify-between text-slate-500 text-xs font-medium uppercase tracking-wide">
+<span>Average Match</span>
+<span class="material-symbols-outlined text-slate-400 text-xl">insights</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-3xl font-display font-bold text-slate-900">42%</span>
+<span class="text-xs text-slate-500">Cohort Mean</span>
+</div>
+<div class="mt-2 text-xs text-amber-600 font-medium flex items-center gap-1">
+<span class="material-symbols-outlined text-sm">trending_up</span>
+<span>+14% vs historical baseline</span>
+</div>
+</div>
+<!-- Card 3 -->
+<div class="bg-white rounded-xl border border-rose-200 bg-rose-50/20 p-5 shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center justify-between text-rose-700 text-xs font-semibold uppercase tracking-wide">
+<span>Collusion Group</span>
+<span class="material-symbols-outlined text-rose-500 text-xl">group_work</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-3xl font-display font-bold text-rose-600">1</span>
+<span class="text-xs font-medium text-rose-700">(3 students flagged)</span>
+</div>
+<div class="mt-2 text-xs text-rose-600 font-medium">
+          Alice, Bob &amp; Dave • 89% match
+        </div>
+</div>
+<!-- Card 4 -->
+<div class="bg-white rounded-xl border border-amber-200 bg-amber-50/20 p-5 shadow-sm hover:shadow transition-shadow">
+<div class="flex items-center justify-between text-amber-800 text-xs font-semibold uppercase tracking-wide">
+<span>AI Generated</span>
+<span class="material-symbols-outlined text-amber-600 text-xl">smart_toy</span>
+</div>
+<div class="mt-3 flex items-baseline gap-2">
+<span class="text-3xl font-display font-bold text-amber-600">1 Flag</span>
+<span class="text-xs text-amber-700">94% confidence</span>
+</div>
+<div class="mt-2 text-xs text-amber-700">
+          Frank Alvarez • Claude 3.5 Sonnet
+        </div>
+</div>
+</div>
+<!-- 4. CANDIDATE LIST TABLE -->
+<div class="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+<!-- Table Header Bar / Filter Strip -->
+<div class="px-5 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+<div class="flex items-center gap-2">
+<h2 class="text-base font-semibold text-slate-900 font-display">Student Submissions</h2>
+<span class="px-2 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-600">6 of 8 shown</span>
+</div>
+<div class="flex items-center gap-1.5 self-start sm:self-auto">
+<button class="px-3 py-1 text-xs font-medium rounded-md bg-slate-900 text-white transition-colors">All</button>
+<button class="px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">Flagged (3)</button>
+<button class="px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">Review (1)</button>
+<button class="px-3 py-1 text-xs font-medium rounded-md text-slate-600 hover:bg-slate-100 transition-colors">Clear (2)</button>
+</div>
+</div>
+<!-- Clean Minimal Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-slate-50 text-slate-500 text-xs font-semibold uppercase tracking-wider border-b border-slate-200">
+<th class="py-3 px-5">Student Name</th>
+<th class="py-3 px-5">File</th>
+<th class="py-3 px-5">Integrity Status</th>
+<th class="py-3 px-5">Similarity Score</th>
+<th class="py-3 px-5">AI Risk</th>
+<th class="py-3 px-5 text-right">Action</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-sm">
+<!-- Row 1: Alice Chen -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-5">
+<div class="font-medium text-slate-900">Alice Chen</div>
+<div class="text-xs text-slate-400">#STD-091 • 09:14 UTC</div>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-1.5 text-slate-700">
+<span class="material-symbols-outlined text-base text-slate-400">description</span>
+<span class="font-medium text-xs">Solution.py</span>
+</div>
+<div class="text-xs text-slate-400">3.4 KB • Python</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  Flagged (Collusion)
+                </span>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rose-500 h-full w-[89%] rounded-full"></div>
+</div>
+<span class="font-semibold text-rose-600 text-xs">89%</span>
+</div>
+<div class="text-xs text-slate-400 mt-0.5">w/ Bob Miller</div>
+</td>
+<td class="py-4 px-5">
+<span class="text-xs font-medium text-emerald-700">Low (14%)</span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium shadow-sm transition-colors" onclick="openReviewModal('Alice Chen', 'Bob Miller', '89%')">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm text-slate-400">arrow_forward</span>
+</button>
+</td>
+</tr>
+<!-- Row 2: Bob Miller -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-5">
+<div class="font-medium text-slate-900">Bob Miller</div>
+<div class="text-xs text-slate-400">#STD-044 • 09:18 UTC</div>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-1.5 text-slate-700">
+<span class="material-symbols-outlined text-base text-slate-400">description</span>
+<span class="font-medium text-xs">BinarySearch.py</span>
+</div>
+<div class="text-xs text-slate-400">3.1 KB • Python</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  Flagged (Collusion)
+                </span>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rose-500 h-full w-[89%] rounded-full"></div>
+</div>
+<span class="font-semibold text-rose-600 text-xs">89%</span>
+</div>
+<div class="text-xs text-slate-400 mt-0.5">w/ Alice Chen</div>
+</td>
+<td class="py-4 px-5">
+<span class="text-xs font-medium text-emerald-700">Low (18%)</span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium shadow-sm transition-colors" onclick="openReviewModal('Bob Miller', 'Alice Chen', '89%')">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm text-slate-400">arrow_forward</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: Dave Vance -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-5">
+<div class="font-medium text-slate-900">Dave Vance</div>
+<div class="text-xs text-slate-400">#STD-108 • 09:22 UTC</div>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-1.5 text-slate-700">
+<span class="material-symbols-outlined text-base text-slate-400">description</span>
+<span class="font-medium text-xs">SearchAlgorithm.py</span>
+</div>
+<div class="text-xs text-slate-400">3.8 KB • Python</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-rose-50 text-rose-700 border border-rose-200/60">
+<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
+                  Flagged (Collusion)
+                </span>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-rose-500 h-full w-[82%] rounded-full"></div>
+</div>
+<span class="font-semibold text-rose-600 text-xs">82%</span>
+</div>
+<div class="text-xs text-slate-400 mt-0.5">w/ Alice &amp; Bob</div>
+</td>
+<td class="py-4 px-5">
+<span class="text-xs font-medium text-emerald-700">Low (22%)</span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium shadow-sm transition-colors" onclick="openReviewModal('Dave Vance', 'Alice Chen', '82%')">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm text-slate-400">arrow_forward</span>
+</button>
+</td>
+</tr>
+<!-- Row 4: Frank Alvarez -->
+<tr class="hover:bg-slate-50/80 transition-colors bg-amber-50/30">
+<td class="py-4 px-5">
+<div class="font-medium text-slate-900">Frank Alvarez</div>
+<div class="text-xs text-slate-400">#STD-077 • 09:31 UTC</div>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-1.5 text-slate-700">
+<span class="material-symbols-outlined text-base text-slate-400">description</span>
+<span class="font-medium text-xs">SolutionAI.py</span>
+</div>
+<div class="text-xs text-slate-400">5.2 KB • Python</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-amber-50 text-amber-800 border border-amber-200/80">
+<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  Needs Review (AI Flag)
+                </span>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full w-[18%] rounded-full"></div>
+</div>
+<span class="font-medium text-slate-600 text-xs">18%</span>
+</div>
+<div class="text-xs text-slate-400 mt-0.5">Peer baseline</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1 text-xs font-semibold text-amber-700 bg-amber-100/70 px-2 py-0.5 rounded">
+<span class="material-symbols-outlined text-xs">smart_toy</span>
+                  94% Synthetic
+                </span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium shadow-sm transition-colors" onclick="openReviewModal('Frank Alvarez', 'Claude 3.5 Sonnet', '94% AI')">
+<span>Review</span>
+<span class="material-symbols-outlined text-sm">arrow_forward</span>
+</button>
+</td>
+</tr>
+<!-- Row 5: Charlie Zhang -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-5">
+<div class="font-medium text-slate-900">Charlie Zhang</div>
+<div class="text-xs text-slate-400">#STD-019 • 09:34 UTC</div>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-1.5 text-slate-700">
+<span class="material-symbols-outlined text-base text-slate-400">description</span>
+<span class="font-medium text-xs">SearchImpl.cpp</span>
+</div>
+<div class="text-xs text-slate-400">4.1 KB • C++</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Clear
+                </span>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full w-[12%] rounded-full"></div>
+</div>
+<span class="font-medium text-slate-600 text-xs">12%</span>
+</div>
+<div class="text-xs text-slate-400 mt-0.5">Normal baseline</div>
+</td>
+<td class="py-4 px-5">
+<span class="text-xs font-medium text-emerald-700">Low (8%)</span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium shadow-sm transition-colors">
+<span>Details</span>
+</button>
+</td>
+</tr>
+<!-- Row 6: Elena Rostova -->
+<tr class="hover:bg-slate-50/80 transition-colors">
+<td class="py-4 px-5">
+<div class="font-medium text-slate-900">Elena Rostova</div>
+<div class="text-xs text-slate-400">#STD-083 • 09:38 UTC</div>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-1.5 text-slate-700">
+<span class="material-symbols-outlined text-base text-slate-400">description</span>
+<span class="font-medium text-xs">Solution.java</span>
+</div>
+<div class="text-xs text-slate-400">6.0 KB • Java</div>
+</td>
+<td class="py-4 px-5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                  Clear
+                </span>
+</td>
+<td class="py-4 px-5">
+<div class="flex items-center gap-2">
+<div class="w-16 bg-slate-100 h-1.5 rounded-full overflow-hidden">
+<div class="bg-emerald-500 h-full w-[15%] rounded-full"></div>
+</div>
+<span class="font-medium text-slate-600 text-xs">15%</span>
+</div>
+<div class="text-xs text-slate-400 mt-0.5">Normal baseline</div>
+</td>
+<td class="py-4 px-5">
+<span class="text-xs font-medium text-emerald-700">Low (11%)</span>
+</td>
+<td class="py-4 px-5 text-right">
+<button class="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-xs font-medium shadow-sm transition-colors">
+<span>Details</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination / Footer -->
+<div class="px-5 py-3 border-t border-slate-200 bg-slate-50/50 flex items-center justify-between text-xs text-slate-500">
+<span>Showing 6 of 8 candidates • 2 pending analysis</span>
+<div class="flex items-center gap-1">
+<button class="px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-400 cursor-not-allowed">Previous</button>
+<button class="px-2.5 py-1 rounded bg-blue-600 text-white font-medium">1</button>
+<button class="px-2.5 py-1 rounded border border-slate-200 bg-white text-slate-700 hover:bg-slate-50">Next</button>
+</div>
+</div>
+</div>
+</main>
+<!-- LIGHT-MODE CLEAN COMPARISON MODAL -->
+<div class="fixed inset-0 z-50 bg-slate-900/40 backdrop-blur-sm hidden items-center justify-center p-4" id="reviewModal">
+<div class="bg-white rounded-xl border border-slate-200 shadow-xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[90vh]">
+<!-- Modal Header -->
+<div class="px-6 py-4 border-b border-slate-200 flex items-center justify-between">
+<div>
+<h3 class="text-base font-semibold text-slate-900 font-display" id="modalTitle">Code Comparison Review</h3>
+<p class="text-xs text-slate-500 mt-0.5" id="modalSubtitle">Comparing Alice Chen and Bob Miller (89% similarity)</p>
+</div>
+<button class="w-8 h-8 rounded-lg hover:bg-slate-100 text-slate-400 hover:text-slate-600 flex items-center justify-center transition-colors" onclick="closeReviewModal()">
+<span class="material-symbols-outlined text-xl">close</span>
+</button>
+</div>
+<!-- Modal Body (Split diff) -->
+<div class="p-6 overflow-y-auto grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50/50">
+<!-- Left Side -->
+<div class="bg-white rounded-lg border border-slate-200 p-4 shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs font-semibold text-slate-700 pb-2 border-b border-slate-100">
+<span>Alice Chen — Solution.py</span>
+<span class="text-slate-400">Lines 14–22</span>
+</div>
+<pre class="text-xs text-slate-700 font-mono leading-relaxed bg-slate-50 p-3 rounded border border-slate-100 overflow-x-auto">def solve_query(arr, target):
+    <span class="bg-rose-100 text-rose-900 px-1 rounded">left = 0</span>
+    <span class="bg-rose-100 text-rose-900 px-1 rounded">right = len(arr) - 1</span>
+    
+    <span class="bg-rose-100 text-rose-900 px-1 rounded">while left &lt;= right:</span>
+        <span class="bg-rose-100 text-rose-900 px-1 rounded">pivot = left + (right - left) // 2</span>
+        <span class="bg-rose-100 text-rose-900 px-1 rounded">if arr[pivot] == target:</span>
+            return pivot
+          </pre>
+</div>
+<!-- Right Side -->
+<div class="bg-white rounded-lg border border-slate-200 p-4 shadow-sm flex flex-col gap-2">
+<div class="flex items-center justify-between text-xs font-semibold text-slate-700 pb-2 border-b border-slate-100">
+<span>Bob Miller — BinarySearch.py</span>
+<span class="text-slate-400">Lines 16–24</span>
+</div>
+<pre class="text-xs text-slate-700 font-mono leading-relaxed bg-slate-50 p-3 rounded border border-slate-100 overflow-x-auto">def binarySearch(nums, key):
+    <span class="bg-rose-100 text-rose-900 px-1 rounded">l = 0</span>
+    <span class="bg-rose-100 text-rose-900 px-1 rounded">r = len(nums) - 1</span>
+    
+    <span class="bg-rose-100 text-rose-900 px-1 rounded">while l &lt;= r:</span>
+        <span class="bg-rose-100 text-rose-900 px-1 rounded">p = l + (r - l) // 2</span>
+        <span class="bg-rose-100 text-rose-900 px-1 rounded">if nums[p] == key:</span>
+            return p
+          </pre>
+</div>
+</div>
+<!-- Modal Footer -->
+<div class="px-6 py-4 border-t border-slate-200 bg-white flex items-center justify-between">
+<span class="text-xs text-slate-500">AST structure matches with variable identifier renaming</span>
+<div class="flex items-center gap-2">
+<button class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-100 rounded-lg transition-colors" onclick="closeReviewModal()">
+            Close
+          </button>
+<button class="px-4 py-2 text-xs font-medium bg-rose-600 hover:bg-rose-700 text-white rounded-lg shadow-sm transition-colors" onclick="closeReviewModal()">
+            Confirm Flag
+          </button>
+</div>
+</div>
+</div>
+</div>
+<!-- SIMPLE FOOTER -->
+<footer class="border-t border-slate-200 bg-white py-4 mt-auto">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+<div class="flex items-center gap-4">
+<span>© 2024 Zixie Core</span>
+<span>•</span>
+<a class="hover:text-slate-800 transition-colors" href="#">Documentation</a>
+<span>•</span>
+<a class="hover:text-slate-800 transition-colors" href="#">Support</a>
+</div>
+<div>
+<span>CS401 Fall Cohort • All records synchronized</span>
+</div>
+</div>
+</footer>
+<script>
+    function openReviewModal(student1, student2, score) {
+      const modal = document.getElementById('reviewModal');
+      const title = document.getElementById('modalTitle');
+      const subtitle = document.getElementById('modalSubtitle');
+      
+      title.textContent = `Review: ${student1}`;
+      subtitle.textContent = `Comparison against ${student2} (${score} match)`;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeReviewModal() {
+      const modal = document.getElementById('reviewModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+  </script>
+</body></html>

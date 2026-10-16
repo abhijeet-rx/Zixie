@@ -22,8 +22,8 @@ function resolveTheme(theme: Theme): 'dark' | 'light' {
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>(() => {
-    if (typeof window === 'undefined') return 'dark';
-    return (localStorage.getItem('zixie-theme') as Theme) || 'dark';
+    if (typeof window === 'undefined') return 'light';
+    return (localStorage.getItem('zixie-theme') as Theme) || 'light';
   });
 
   const resolved = resolveTheme(theme);

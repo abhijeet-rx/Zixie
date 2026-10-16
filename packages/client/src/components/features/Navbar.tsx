@@ -10,6 +10,7 @@ interface NavbarProps {
   onReloadBenchmark: () => void;
   onResetSession: () => void;
   onOpenCommandPalette: () => void;
+  onSwitchToStitch?: () => void;
 }
 
 export function Navbar({
@@ -19,6 +20,7 @@ export function Navbar({
   onReloadBenchmark,
   onResetSession,
   onOpenCommandPalette,
+  onSwitchToStitch,
 }: NavbarProps) {
   const { theme, setTheme, resolved } = useTheme();
 
@@ -90,6 +92,21 @@ export function Navbar({
               <span className="hidden sm:inline">Benchmark Cohort</span>
             </Button>
           </Tooltip>
+
+          {/* Switch to Stitch Academic UI */}
+          {onSwitchToStitch && (
+            <Tooltip content="Switch to Stitch Academic Workspace (Light Mode)">
+              <Button
+                variant="secondary"
+                size="sm"
+                onClick={onSwitchToStitch}
+                className="font-mono text-xs flex items-center gap-1.5"
+              >
+                <span>🎓</span>
+                <span className="hidden md:inline">Academic Mode</span>
+              </Button>
+            </Tooltip>
+          )}
 
           {/* Theme Switcher */}
           <Tooltip content={`Theme: ${theme} (click to cycle)`}>

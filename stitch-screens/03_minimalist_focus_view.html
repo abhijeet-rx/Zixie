@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Zixie — Assignment 3 · Code Integrity</title>
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      darkMode: "class",
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+            mono: ['JetBrains Mono', 'ui-monospace', 'monospace']
+          },
+          colors: {
+            brand: {
+              DEFAULT: '#004ac6',
+              surface: '#faf8ff'
+            }
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    body {
+      font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+      -webkit-font-smoothing: antialiased;
+    }
+  </style>
+</head>
+<body class="bg-[#fafafa] text-[#111827] font-sans min-h-screen flex flex-col">
+<!-- Top Minimalist Header -->
+<header class="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-gray-200/80">
+<div class="max-w-5xl mx-auto px-6 h-16 flex items-center justify-between gap-6">
+<!-- Brand & Project Breadcrumb -->
+<div class="flex items-center gap-3">
+<div class="flex items-center gap-2">
+<span class="w-6 h-6 rounded-md bg-[#111827] text-white flex items-center justify-center font-bold text-xs tracking-tighter">Z</span>
+<span class="font-semibold text-[15px] tracking-tight text-[#111827]">Zixie</span>
+</div>
+<span class="text-gray-300 font-light">/</span>
+<span class="text-sm text-gray-500 font-normal">Assignment 3 — Code Integrity</span>
+</div>
+<!-- Search & Controls -->
+<div class="flex items-center gap-4">
+<div class="relative w-64 md:w-80">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 text-[18px]">search</span>
+<input class="w-full pl-9 pr-3 py-1.5 bg-gray-50 hover:bg-gray-100/70 focus:bg-white text-xs text-gray-800 placeholder-gray-400 rounded-lg border border-transparent focus:border-gray-300 focus:outline-none transition-all" id="searchInput" placeholder="Search students, files, tokens..." type="text"/>
+</div>
+<div class="h-4 w-px bg-gray-200"></div>
+<div class="flex items-center gap-2">
+<img alt="Abhijeet" class="w-7 h-7 rounded-full object-cover ring-1 ring-gray-200" src="https://lh3.googleusercontent.com/aida/AEtjO1USn3-BVb2OxmIYHAmMFs169_UhTu6G4hy0mLMn95I4egb2Bh0WUIIfyw6duSTK7F48qW9svJ9yRKtZP-VyDbdR2xieHQUZvDMPxfbiN8pc72dMrRVTIlLcI5YLzHVwf0hMf3ZVsnLr95YyFwaSS36bLmkugUaLOUfgtxtdt29MclTzjzy7OnG2YS5fibycoUiJQmdU1fEEAItZUAr7-9R6SY4CNBw6amlk9lwjdo9CaXVEM3Ifzr6RsA"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Main Container -->
+<main class="flex-1 max-w-5xl w-full mx-auto px-6 py-10">
+<!-- Hero Title & Context -->
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-8">
+<div>
+<h1 class="text-2xl font-semibold tracking-tight text-gray-950">Code Integrity &amp; Authorship</h1>
+<p class="text-sm text-gray-500 mt-1">CS401-FALL · Automated AST comparison and AI stylometry report</p>
+</div>
+<div class="flex items-center gap-2 text-xs text-gray-400 font-mono">
+<span class="inline-block w-2 h-2 rounded-full bg-emerald-500"></span>
+<span>Analysis Completed 09:41 UTC</span>
+</div>
+</div>
+<!-- 3 Understated Key Metric Blocks -->
+<section class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-10">
+<div class="bg-white p-5 rounded-xl border border-gray-200/75 shadow-sm transition-all hover:border-gray-300">
+<div class="text-xs font-medium text-gray-400 uppercase tracking-wider">Submissions</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-semibold tracking-tight text-gray-900">8</span>
+<span class="text-xs text-gray-400">Total in Cohort</span>
+</div>
+<p class="text-xs text-gray-400 mt-2 font-mono">28 pairwise comparisons</p>
+</div>
+<div class="bg-white p-5 rounded-xl border border-gray-200/75 shadow-sm transition-all hover:border-gray-300">
+<div class="text-xs font-medium text-rose-500 uppercase tracking-wider">Flagged Matches</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-semibold tracking-tight text-rose-600">3</span>
+<span class="text-xs text-rose-500/80">Require review</span>
+</div>
+<p class="text-xs text-gray-400 mt-2 font-mono">Max similarity: 89% (Ring-01)</p>
+</div>
+<div class="bg-white p-5 rounded-xl border border-gray-200/75 shadow-sm transition-all hover:border-gray-300">
+<div class="text-xs font-medium text-amber-500 uppercase tracking-wider">AI Detected</div>
+<div class="mt-2 flex items-baseline gap-2">
+<span class="text-3xl font-semibold tracking-tight text-amber-600">1</span>
+<span class="text-xs text-amber-600/80">Synthetic source</span>
+</div>
+<p class="text-xs text-gray-400 mt-2 font-mono">Claude 3.5 Sonnet (94%)</p>
+</div>
+</section>
+<!-- Simple Segmented Tab Controls -->
+<div class="flex items-center justify-between border-b border-gray-200 mb-6">
+<div class="flex gap-8">
+<button class="pb-3 text-sm font-medium border-b-2 border-gray-900 text-gray-950 flex items-center gap-2 transition-colors" id="tabBtnFlagged" onclick="switchTab('flagged')">
+<span>Flagged Matches</span>
+<span class="px-1.5 py-0.5 rounded-full bg-rose-50 text-rose-600 text-xs font-semibold">3</span>
+</button>
+<button class="pb-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-700 flex items-center gap-2 transition-colors" id="tabBtnClean" onclick="switchTab('clean')">
+<span>Verified Clean</span>
+<span class="px-1.5 py-0.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium">5</span>
+</button>
+</div>
+<div class="text-xs text-gray-400 font-mono pb-2">
+        Threshold: &gt;75% similarity
+      </div>
+</div>
+<!-- TAB 1 CONTENT: Flagged Matches (3) -->
+<div class="space-y-5" id="flaggedView">
+<!-- Card 1: Alice & Bob -->
+<article class="bg-white rounded-xl border border-gray-200/85 p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-medium text-gray-900 text-base">Alice Chen</span>
+<span class="text-gray-400 text-sm font-light">&amp;</span>
+<span class="font-medium text-gray-900 text-base">Bob Miller</span>
+</div>
+<div class="text-xs text-gray-400 mt-0.5 font-mono">Solution.py (STD-091) ⇄ BinarySearch.py (STD-044)</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 text-xs font-mono font-semibold tracking-wide">
+              89% AST Match
+            </span>
+<button class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1" onclick="openDiffModal('Alice Chen (Solution.py)', 'Bob Miller (BinarySearch.py)', '89%')">
+<span>Compare Diff</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<!-- Overlap Summary & Code Snippet -->
+<div class="mt-4">
+<p class="text-xs text-gray-500 mb-3">
+            Identical abstract syntax tree across 28 lines. Superficial variable replacement (<code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono">left</code> → <code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono">l</code>, <code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono">target</code> → <code class="bg-gray-100 px-1 py-0.5 rounded text-gray-700 font-mono">key</code>). Submissions made 4 minutes apart from shared LAN IP.
+          </p>
+<div class="bg-gray-50 rounded-lg p-3 font-mono text-[12px] text-gray-700 border border-gray-100 overflow-x-auto space-y-1">
+<div class="flex gap-3 text-gray-400">
+<span class="w-6 select-none text-right">14</span>
+<span class="text-gray-900 font-medium">while left &lt;= right:</span>
+</div>
+<div class="flex gap-3 bg-rose-50/80 -mx-3 px-3 py-0.5 text-rose-900">
+<span class="w-6 select-none text-right text-rose-400">15</span>
+<span>pivot = left + (right - left) // 2 <span class="text-[10px] text-rose-500 font-semibold ml-2">[Exact CFG node match]</span></span>
+</div>
+<div class="flex gap-3 bg-rose-50/80 -mx-3 px-3 py-0.5 text-rose-900">
+<span class="w-6 select-none text-right text-rose-400">16</span>
+<span>if arr[pivot] == target: return pivot</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 2: Bob & Dave -->
+<article class="bg-white rounded-xl border border-gray-200/85 p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-rose-500"></span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-medium text-gray-900 text-base">Bob Miller</span>
+<span class="text-gray-400 text-sm font-light">&amp;</span>
+<span class="font-medium text-gray-900 text-base">Dave Vance</span>
+</div>
+<div class="text-xs text-gray-400 mt-0.5 font-mono">BinarySearch.py (STD-044) ⇄ SearchAlgorithm.py (STD-108)</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded-md bg-rose-50 text-rose-700 text-xs font-mono font-semibold tracking-wide">
+              82% AST Match
+            </span>
+<button class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1" onclick="openDiffModal('Bob Miller (BinarySearch.py)', 'Dave Vance (SearchAlgorithm.py)', '82%')">
+<span>Compare Diff</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="mt-4">
+<p class="text-xs text-gray-500 mb-3">
+            Secondary branch of Collusion Ring-01. Structural control flow is homomorphic with identical branch ordering and early termination logic.
+          </p>
+<div class="bg-gray-50 rounded-lg p-3 font-mono text-[12px] text-gray-700 border border-gray-100 overflow-x-auto space-y-1">
+<div class="flex gap-3 text-gray-400">
+<span class="w-6 select-none text-right">20</span>
+<span class="text-gray-900 font-medium">p = l + (r - l) &gt;&gt; 1</span>
+</div>
+<div class="flex gap-3 bg-rose-50/80 -mx-3 px-3 py-0.5 text-rose-900">
+<span class="w-6 select-none text-right text-rose-400">21</span>
+<span>elif nums[p] &lt; key: l = p + 1 <span class="text-[10px] text-rose-500 font-semibold ml-2">[Isomorphic block]</span></span>
+</div>
+<div class="flex gap-3 bg-rose-50/80 -mx-3 px-3 py-0.5 text-rose-900">
+<span class="w-6 select-none text-right text-rose-400">22</span>
+<span>else: r = p - 1</span>
+</div>
+</div>
+</div>
+</article>
+<!-- Card 3: Frank Alvarez (AI Generated) -->
+<article class="bg-white rounded-xl border border-gray-200/85 p-6 shadow-sm hover:shadow-md transition-shadow">
+<div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
+<div class="flex items-center gap-3">
+<span class="w-2 h-2 rounded-full bg-amber-500"></span>
+<div>
+<div class="flex items-center gap-2">
+<span class="font-medium text-gray-900 text-base">Frank Alvarez</span>
+<span class="px-2 py-0.5 bg-amber-50 text-amber-700 text-[11px] font-medium rounded">Anthropic Model Attribution</span>
+</div>
+<div class="text-xs text-gray-400 mt-0.5 font-mono">SolutionAI.py (STD-077) · Zero peer collusion</div>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<span class="px-2.5 py-1 rounded-md bg-amber-50 text-amber-700 text-xs font-mono font-semibold tracking-wide">
+              94% Synthetic AI
+            </span>
+<button class="text-xs font-medium text-blue-600 hover:text-blue-800 hover:underline inline-flex items-center gap-1" onclick="openAiDetails()">
+<span>View Stylometry</span>
+<span class="material-symbols-outlined text-[14px]">arrow_forward</span>
+</button>
+</div>
+</div>
+<div class="mt-4">
+<p class="text-xs text-gray-500 mb-3">
+            Near-zero token perplexity variance across the entire AST. Verbose Sphinx docstrings and textbook Anthropic prompt completions on all 6 helper functions without course precedent.
+          </p>
+<div class="bg-gray-50 rounded-lg p-3 font-mono text-[12px] text-gray-700 border border-gray-100 overflow-x-auto space-y-1">
+<div class="flex gap-3 text-gray-400">
+<span class="w-6 select-none text-right">01</span>
+<span class="text-gray-900 font-medium">def binary_search_optimal(sequence: List[int], target: int) -&gt; int:</span>
+</div>
+<div class="flex gap-3 bg-amber-50/80 -mx-3 px-3 py-0.5 text-amber-900">
+<span class="w-6 select-none text-right text-amber-400">02</span>
+<span>"""Applies binary search with logarithmic complexity O(log N).""" <span class="text-[10px] text-amber-600 font-semibold ml-2">[Perplexity: 0.96]</span></span>
+</div>
+<div class="flex gap-3 bg-amber-50/80 -mx-3 px-3 py-0.5 text-amber-900">
+<span class="w-6 select-none text-right text-amber-400">03</span>
+<span>low, high = 0, len(sequence) - 1</span>
+</div>
+</div>
+</div>
+</article>
+</div>
+<!-- TAB 2 CONTENT: Verified Clean (5) -->
+<div class="hidden space-y-3" id="cleanView">
+<div class="bg-white rounded-xl border border-gray-200/80 divide-y divide-gray-100 shadow-sm overflow-hidden">
+<!-- Clean 1 -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
+<div class="flex items-center gap-4">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<div>
+<div class="text-sm font-medium text-gray-900">Charlie Zhang</div>
+<div class="text-xs text-gray-400 font-mono mt-0.5">SearchImpl.cpp · STD-019</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-xs font-mono font-medium text-emerald-600">8% Organic AST Match</div>
+<div class="text-[11px] text-gray-400 font-mono">09:34:19 UTC</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-gray-100 text-gray-600 text-xs font-medium">Clean</span>
+</div>
+</div>
+<!-- Clean 2 -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
+<div class="flex items-center gap-4">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<div>
+<div class="text-sm font-medium text-gray-900">Elena Rostova</div>
+<div class="text-xs text-gray-400 font-mono mt-0.5">Solution.java · STD-083</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-xs font-mono font-medium text-emerald-600">11% Organic AST Match</div>
+<div class="text-[11px] text-gray-400 font-mono">09:38:52 UTC</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-gray-100 text-gray-600 text-xs font-medium">Clean</span>
+</div>
+</div>
+<!-- Clean 3 -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
+<div class="flex items-center gap-4">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<div>
+<div class="text-sm font-medium text-gray-900">Grace Hopper</div>
+<div class="text-xs text-gray-400 font-mono mt-0.5">QuickFind.py · STD-012</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-xs font-mono font-medium text-emerald-600">9% Organic AST Match</div>
+<div class="text-[11px] text-gray-400 font-mono">09:02:11 UTC</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-gray-100 text-gray-600 text-xs font-medium">Clean</span>
+</div>
+</div>
+<!-- Clean 4 -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
+<div class="flex items-center gap-4">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<div>
+<div class="text-sm font-medium text-gray-900">Marcus Sterling</div>
+<div class="text-xs text-gray-400 font-mono mt-0.5">Search.go · STD-055</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-xs font-mono font-medium text-emerald-600">14% Organic AST Match</div>
+<div class="text-[11px] text-gray-400 font-mono">09:27:44 UTC</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-gray-100 text-gray-600 text-xs font-medium">Clean</span>
+</div>
+</div>
+<!-- Clean 5 -->
+<div class="p-4 px-6 flex items-center justify-between hover:bg-gray-50/60 transition-colors">
+<div class="flex items-center gap-4">
+<span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+<div>
+<div class="text-sm font-medium text-gray-900">Priya Patel</div>
+<div class="text-xs text-gray-400 font-mono mt-0.5">Main.rs · STD-102</div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="text-right">
+<div class="text-xs font-mono font-medium text-emerald-600">12% Organic AST Match</div>
+<div class="text-[11px] text-gray-400 font-mono">09:30:15 UTC</div>
+</div>
+<span class="px-2.5 py-1 rounded bg-gray-100 text-gray-600 text-xs font-medium">Clean</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Clean Modal: Compare Diff Inspector -->
+<div class="fixed inset-0 z-50 bg-gray-900/40 backdrop-blur-sm hidden items-center justify-center p-4" id="diffModal">
+<div class="bg-white rounded-2xl border border-gray-200/90 shadow-2xl w-full max-w-4xl overflow-hidden flex flex-col max-h-[85vh]">
+<!-- Header -->
+<div class="px-6 py-4 border-b border-gray-100 flex items-center justify-between">
+<div>
+<div class="flex items-center gap-2">
+<h3 class="font-semibold text-gray-950 text-sm">AST Difference Inspector</h3>
+<span class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-rose-50 text-rose-700" id="modalMatchBadge">89% Match</span>
+</div>
+<p class="text-xs text-gray-400 font-mono mt-0.5" id="modalSubTitle">Alice Chen (Solution.py) ⇄ Bob Miller (BinarySearch.py)</p>
+</div>
+<button class="text-gray-400 hover:text-gray-700 p-1 rounded-lg" onclick="closeDiffModal()">
+<span class="material-symbols-outlined text-lg">close</span>
+</button>
+</div>
+<!-- Split Code Diff -->
+<div class="grid grid-cols-1 md:grid-cols-2 divide-y md:divide-y-0 md:divide-x divide-gray-100 bg-white overflow-y-auto font-mono text-xs p-4 gap-4">
+<div>
+<div class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2 font-mono">Candidate A (Alice Chen)</div>
+<div class="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-1 text-gray-700 leading-relaxed overflow-x-auto">
+<div><span class="text-gray-400">12</span> def solve_query(arr, target):</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">13</span>     left = 0</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">14</span>     right = len(arr) - 1</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">15</span>     while left &lt;= right:</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">16</span>         pivot = left + (right - left) // 2</div>
+<div><span class="text-gray-400">17</span>         if arr[pivot] == target:</div>
+<div><span class="text-gray-400">18</span>             return pivot</div>
+</div>
+</div>
+<div>
+<div class="text-[11px] font-semibold text-gray-500 uppercase tracking-wider mb-2 font-mono">Candidate B (Bob Miller)</div>
+<div class="bg-gray-50 p-3 rounded-lg border border-gray-100 space-y-1 text-gray-700 leading-relaxed overflow-x-auto">
+<div><span class="text-gray-400">14</span> def binarySearch(nums, key):</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">15</span>     l = 0</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">16</span>     r = len(nums) - 1</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">17</span>     while l &lt;= r:</div>
+<div class="bg-rose-50 text-rose-900 -mx-2 px-2 py-0.5 rounded"><span class="text-rose-400">18</span>         p = l + (r - l) // 2</div>
+<div><span class="text-gray-400">19</span>         if nums[p] == key:</div>
+<div><span class="text-gray-400">20</span>             return p</div>
+</div>
+</div>
+</div>
+<!-- Footer -->
+<div class="px-6 py-3 bg-gray-50 border-t border-gray-100 flex items-center justify-between text-xs">
+<span class="text-gray-400 font-mono">AST Tree Homomorphism: 100% · Cyclomatic Delta: 0</span>
+<button class="px-3 py-1.5 rounded-lg bg-gray-900 text-white font-medium text-xs hover:bg-black transition-colors" onclick="closeDiffModal()">
+          Done
+        </button>
+</div>
+</div>
+</div>
+<!-- Ultra-Minimal Footer -->
+<footer class="border-t border-gray-200/80 bg-white py-6">
+<div class="max-w-5xl mx-auto px-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-gray-400">
+<div class="flex items-center gap-3">
+<span class="font-medium text-gray-600">Zixie Integrity</span>
+<span>·</span>
+<span>Version 2.4.0</span>
+<span>·</span>
+<span>Case Reference #A92B4F</span>
+</div>
+<div>
+<span>Academic Honor Code Audit Protocol</span>
+</div>
+</div>
+</footer>
+<script>
+    function switchTab(tab) {
+      const flaggedView = document.getElementById('flaggedView');
+      const cleanView = document.getElementById('cleanView');
+      const btnFlagged = document.getElementById('tabBtnFlagged');
+      const btnClean = document.getElementById('tabBtnClean');
+
+      if (tab === 'flagged') {
+        flaggedView.classList.remove('hidden');
+        cleanView.classList.add('hidden');
+        btnFlagged.className = "pb-3 text-sm font-medium border-b-2 border-gray-900 text-gray-950 flex items-center gap-2 transition-colors";
+        btnClean.className = "pb-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-700 flex items-center gap-2 transition-colors";
+      } else {
+        flaggedView.classList.add('hidden');
+        cleanView.classList.remove('hidden');
+        btnClean.className = "pb-3 text-sm font-medium border-b-2 border-gray-900 text-gray-950 flex items-center gap-2 transition-colors";
+        btnFlagged.className = "pb-3 text-sm font-medium border-b-2 border-transparent text-gray-400 hover:text-gray-700 flex items-center gap-2 transition-colors";
+      }
+    }
+
+    function openDiffModal(candidateA, candidateB, matchRate) {
+      const modal = document.getElementById('diffModal');
+      document.getElementById('modalSubTitle').innerText = `${candidateA} ⇄ ${candidateB}`;
+      document.getElementById('modalMatchBadge').innerText = `${matchRate} Match`;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+    }
+
+    function closeDiffModal() {
+      const modal = document.getElementById('diffModal');
+      modal.classList.add('hidden');
+      modal.classList.remove('flex');
+    }
+
+    function openAiDetails() {
+      openDiffModal('Frank Alvarez (SolutionAI.py)', 'Claude-3.5-Sonnet Baseline Archetype', '94% AI');
+    }
+
+    // Filter functionality for search input
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('input', (e) => {
+        const query = e.target.value.toLowerCase();
+        const articles = document.querySelectorAll('#flaggedView article');
+        articles.forEach(art => {
+          art.style.display = art.innerText.toLowerCase().includes(query) ? '' : 'none';
+        });
+        const cleanRows = document.querySelectorAll('#cleanView > div > div');
+        cleanRows.forEach(row => {
+          row.style.display = row.innerText.toLowerCase().includes(query) ? '' : 'none';
+        });
+      });
+    }
+  </script>
+</body></html>
