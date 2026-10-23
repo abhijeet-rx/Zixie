@@ -7,6 +7,8 @@ import {
   Key,
   Copy,
   Send,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 
 interface Integration {
@@ -21,6 +23,7 @@ interface Integration {
 
 export function IntegrationsScreen() {
   const [copiedKey, setCopiedKey] = useState(false);
+  const [showKey, setShowKey] = useState(false);
   const [successToast, setSuccessToast] = useState<string | null>(null);
   const [sendingPing, setSendingPing] = useState(false);
 
@@ -247,11 +250,14 @@ export function IntegrationsScreen() {
 
             <div className="flex items-center gap-2">
               <input
-                type="password"
+                type={showKey ? 'text' : 'password'}
                 readOnly
                 value="zx_live_84f90112c8e31a89bd44"
                 className="flex-1 px-3 py-2 bg-white border border-slate-200 rounded-lg text-slate-800 font-mono text-xs select-all"
               />
+              <button type="button" onClick={() => setShowKey((visible) => !visible)} aria-label={showKey ? 'Hide API key' : 'Show API key'} title={showKey ? 'Hide key' : 'Show key'} className="rounded-md border border-slate-200 bg-white p-2 text-slate-500 hover:text-slate-800">
+                {showKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
               <button
                 type="button"
                 onClick={handleCopyKey}

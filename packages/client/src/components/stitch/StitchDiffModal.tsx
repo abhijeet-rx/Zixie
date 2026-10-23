@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { X, CheckCircle, ChevronLeft, ChevronRight, SplitSquareVertical, FileCode } from 'lucide-react';
+import { X, CheckCircle, ChevronLeft, ChevronRight, SplitSquareVertical, FileCode, Copy } from 'lucide-react';
 import type { MatchTile } from '../../lib/types';
 
 interface StitchDiffModalProps {
@@ -33,6 +33,12 @@ export function StitchDiffModal({
 }: StitchDiffModalProps) {
   const [currentTileIdx, setCurrentTileIdx] = useState(0);
   const [syncScroll, setSyncScroll] = useState(true);
+  const [copied, setCopied] = useState('');
+  const copySource = async (name: string, source: string) => {
+    await navigator.clipboard.writeText(source);
+    setCopied(name);
+    window.setTimeout(() => setCopied(''), 1600);
+  };
 
   const paneARef = useRef<HTMLDivElement>(null);
   const paneBRef = useRef<HTMLDivElement>(null);
@@ -193,6 +199,7 @@ export function StitchDiffModal({
                 <FileCode className="w-3 h-3 text-slate-400" />
                 {candA.filename}
               </span>
+              <button className="z-copy-button" onClick={() => void copySource('A', candA.sourceCode)}><Copy size={12} />{copied === 'A' ? 'Copied' : 'Copy'}</button>
             </div>
 
             <div
@@ -241,6 +248,7 @@ export function StitchDiffModal({
                 <FileCode className="w-3 h-3 text-slate-400" />
                 {candB.filename}
               </span>
+              <button className="z-copy-button" onClick={() => void copySource('B', candB.sourceCode)}><Copy size={12} />{copied === 'B' ? 'Copied' : 'Copy'}</button>
             </div>
 
             <div

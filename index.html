@@ -1,0 +1,1134 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Zixie — Academic Code Integrity & AI Signal Console</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root, [data-theme="light"] {
+      --bg-page: #F2F6FC;
+      --bg-header: #FFFFFF;
+      --bg-card: #FFFFFF;
+      --bg-subtle: #F8FAFC;
+      --bg-pill: #FFFFFF;
+      --bg-blob: #DCE7F9;
+      --text-main: #0F172A;
+      --text-body: #475569;
+      --text-muted: #64748B;
+      --accent: #2563EB;
+      --accent-hover: #1D4ED8;
+      --accent-soft: rgba(37, 99, 235, 0.1);
+      --border: #E2E8F0;
+      --border-strong: #CBD5E1;
+      --shadow-card: 0 18px 40px -15px rgba(15, 23, 42, 0.07), 0 4px 12px -2px rgba(15, 23, 42, 0.04);
+      --shadow-float: 0 12px 24px -6px rgba(37, 99, 235, 0.12);
+      --risk-red-fg: #DC2626;
+      --risk-red-bg: #FEF2F2;
+      --risk-red-border: #FECACA;
+      --risk-amber-fg: #D97706;
+      --risk-amber-bg: #FFFBEB;
+      --risk-amber-border: #FDE68A;
+      --risk-green-fg: #059669;
+      --risk-green-bg: #ECFDF5;
+      --risk-green-border: #A7F3D0;
+      --code-bg: #0F172A;
+      --code-fg: #E2E8F0;
+    }
+
+    [data-theme="dark"] {
+      --bg-page: #0A0A0B;
+      --bg-header: #111113;
+      --bg-card: #141418;
+      --bg-subtle: #1A1A1F;
+      --bg-pill: #1A1A1F;
+      --bg-blob: rgba(37, 99, 235, 0.09);
+      --text-main: #F8FAFC;
+      --text-body: #94A3B8;
+      --text-muted: #64748B;
+      --accent: #3B82F6;
+      --accent-hover: #60A5FA;
+      --accent-soft: rgba(59, 130, 246, 0.15);
+      --border: #23232B;
+      --border-strong: #32323E;
+      --shadow-card: 0 20px 45px -15px rgba(0, 0, 0, 0.6);
+      --shadow-float: 0 12px 24px -6px rgba(0, 0, 0, 0.5);
+      --risk-red-fg: #F87171;
+      --risk-red-bg: rgba(239, 68, 68, 0.14);
+      --risk-red-border: rgba(239, 68, 68, 0.35);
+      --risk-amber-fg: #FBBF24;
+      --risk-amber-bg: rgba(245, 158, 11, 0.14);
+      --risk-amber-border: rgba(245, 158, 11, 0.35);
+      --risk-green-fg: #34D399;
+      --risk-green-bg: rgba(16, 185, 129, 0.14);
+      --risk-green-border: rgba(16, 185, 129, 0.35);
+      --code-bg: #09090B;
+      --code-fg: #E2E8F0;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      overflow-x: hidden;
+      transition: background-color 0.2s ease, color 0.2s ease;
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    /* Top Navigation Bar (Plagium-inspired) */
+    .navbar {
+      background: var(--bg-header);
+      border-bottom: 1px solid var(--border);
+      height: 68px;
+      padding: 0 32px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .nav-inner {
+      max-width: 1200px;
+      width: 100%;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .brand-dots {
+      display: grid;
+      grid-template-columns: repeat(3, 4px);
+      gap: 3px;
+    }
+
+    .brand-dots span {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .brand-tm {
+      font-size: 9px;
+      font-weight: 700;
+      vertical-align: super;
+      margin-left: 1px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 28px;
+    }
+
+    .nav-link {
+      background: none;
+      border: none;
+      color: var(--text-body);
+      font-size: 13.5px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 6px 2px;
+      transition: color 0.15s;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      color: var(--accent);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .btn-pill-primary {
+      background: var(--accent);
+      color: #FFFFFF;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-size: 13.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+    }
+
+    .btn-pill-primary:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-pill-primary:active {
+      transform: scale(0.98);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-body);
+      font-size: 13.5px;
+      font-weight: 500;
+      padding: 6px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-ghost:hover {
+      background: var(--bg-subtle);
+      color: var(--text-main);
+    }
+
+    /* Hero Stage & Background Shapes */
+    .hero-stage {
+      position: relative;
+      padding: 64px 20px 56px;
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .bg-circle-left {
+      position: fixed;
+      top: 40px;
+      left: -140px;
+      width: 380px;
+      height: 380px;
+      border-radius: 50%;
+      background: var(--bg-blob);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .bg-circle-right {
+      position: fixed;
+      bottom: -140px;
+      right: -100px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: var(--bg-blob);
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    /* Floating Icon Badges */
+    .float-badge {
+      position: absolute;
+      width: 54px;
+      height: 54px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-float);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+      z-index: 1;
+    }
+
+    .float-badge--tl { top: 145px; left: 36px; transform: rotate(-10deg); }
+    .float-badge--bl { bottom: 60px; left: 85px; transform: rotate(8deg); }
+    .float-badge--tr { top: 170px; right: 48px; transform: rotate(11deg); }
+    .float-badge--br { bottom: 45px; right: 110px; transform: rotate(-8deg); }
+
+    .hero-content {
+      position: relative;
+      z-index: 2;
+      max-width: 780px;
+      margin: 0 auto;
+    }
+
+    .eyebrow {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-size: clamp(32px, 5vw, 52px);
+      font-weight: 800;
+      line-height: 1.12;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      margin-bottom: 20px;
+    }
+
+    .hero-subtitle {
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-body);
+      max-width: 630px;
+      margin: 0 auto 32px;
+    }
+
+    /* Center Mode Switcher Pill */
+    .mode-switcher {
+      display: inline-flex;
+      align-items: center;
+      background: var(--bg-pill);
+      border: 1px solid var(--border);
+      padding: 5px;
+      border-radius: 999px;
+      box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+      margin-bottom: 28px;
+    }
+
+    .mode-btn {
+      border: none;
+      background: transparent;
+      color: var(--text-main);
+      font-size: 13.5px;
+      font-weight: 600;
+      padding: 10px 24px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.18s ease;
+    }
+
+    .mode-btn.active {
+      background: var(--accent);
+      color: #FFFFFF;
+      box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28);
+    }
+
+    /* Main Editor Workbench Card */
+    .workbench-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: var(--shadow-card);
+      text-align: left;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+
+    .workbench-card:focus-within {
+      border-color: var(--accent);
+    }
+
+    .workbench-top-bar {
+      padding: 10px 18px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+      font-size: 12px;
+    }
+
+    .sample-chips {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .chip-btn {
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      color: var(--text-body);
+      font-size: 11.5px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+
+    .chip-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .code-textarea {
+      width: 100%;
+      min-height: 220px;
+      padding: 20px;
+      border: none;
+      outline: none;
+      resize: vertical;
+      background: transparent;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .code-textarea::placeholder {
+      font-family: 'Inter', sans-serif;
+      font-size: 15px;
+      color: #94A3B8;
+    }
+
+    .workbench-footer {
+      padding: 14px 20px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+      background: var(--bg-card);
+    }
+
+    .btn-upload-outline {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-strong);
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 18px;
+      border-radius: 999px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    .btn-upload-outline:hover {
+      background: var(--bg-subtle);
+      border-color: var(--accent);
+    }
+
+    .footer-right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .char-counter {
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    .btn-icon-trash {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      cursor: pointer;
+      padding: 6px;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .btn-icon-trash:hover {
+      color: var(--risk-red-fg);
+      background: var(--bg-subtle);
+    }
+
+    .hero-caption {
+      margin-top: 16px;
+      font-size: 12.5px;
+      color: var(--text-muted);
+    }
+
+    /* Live Cohort Console Section Below Hero */
+    .console-section {
+      position: relative;
+      z-index: 2;
+      max-width: 1120px;
+      margin: 0 auto 80px;
+      padding: 0 20px;
+    }
+
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-bottom: 24px;
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      text-align: left;
+      cursor: pointer;
+      transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.03);
+    }
+
+    .kpi-card:hover, .kpi-card.active {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-float);
+    }
+
+    .kpi-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-body);
+    }
+
+    .kpi-num {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 28px;
+      font-weight: 700;
+      margin: 8px 0 4px;
+      color: var(--text-main);
+    }
+
+    .kpi-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .console-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-card);
+      overflow: hidden;
+    }
+
+    .console-header {
+      padding: 14px 20px;
+      background: var(--bg-subtle);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .tab-bar {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      color: var(--text-body);
+      font-size: 12.5px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .tab-btn.active {
+      background: var(--bg-card);
+      color: var(--accent);
+      border-color: var(--border);
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+
+    .data-table th {
+      text-align: left;
+      padding: 11px 18px;
+      font-size: 11.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-subtle);
+    }
+
+    .data-table td {
+      padding: 12px 18px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: middle;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 3px 9px;
+      border-radius: 6px;
+      border: 1px solid transparent;
+    }
+
+    .badge--collusion {
+      color: var(--risk-red-fg);
+      background: var(--risk-red-bg);
+      border-color: var(--risk-red-border);
+    }
+
+    .badge--suspicious {
+      color: var(--risk-amber-fg);
+      background: var(--risk-amber-bg);
+      border-color: var(--risk-amber-border);
+    }
+
+    .badge--clear {
+      color: var(--risk-green-fg);
+      background: var(--risk-green-bg);
+      border-color: var(--risk-green-border);
+    }
+
+    .diff-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      padding: 18px;
+    }
+
+    .code-pane {
+      background: var(--code-bg);
+      color: var(--code-fg);
+      border-radius: 10px;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+    }
+
+    .code-pane-header {
+      padding: 8px 14px;
+      background: rgba(255, 255, 255, 0.06);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      display: flex;
+      justify-content: space-between;
+      font-size: 11.5px;
+    }
+
+    .code-line {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      padding: 2px 12px 2px 0;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+
+    .code-line.matched {
+      background: rgba(245, 158, 11, 0.22);
+      border-left: 3px solid #F59E0B;
+    }
+
+    .line-num {
+      text-align: right;
+      padding-right: 10px;
+      color: #64748B;
+      user-select: none;
+    }
+
+    @media (max-width: 900px) {
+      .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+      .diff-grid { grid-template-columns: 1fr; }
+      .float-badge { display: none; }
+      .nav-links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Decorative Soft Background Circles (from Plagium reference) -->
+  <div class="bg-circle-left"></div>
+  <div class="bg-circle-right"></div>
+
+  <!-- Top Navigation Header -->
+  <header class="navbar">
+    <div class="nav-inner">
+      <a href="#top" class="brand">
+        <span class="brand-dots" aria-hidden="true">
+          <span></span><span></span><span></span>
+          <span></span><span></span><span></span>
+        </span>
+        <span>zixie<span class="brand-tm">TM</span></span>
+      </a>
+
+      <nav class="nav-links" aria-label="Main Navigation">
+        <button class="nav-link active" onclick="switchConsoleTab('queue')">Overview</button>
+        <button class="nav-link" onclick="switchConsoleTab('diff')">Submissions ▾</button>
+        <button class="nav-link" onclick="switchConsoleTab('diff')">Similarity Matrix ▾</button>
+        <button class="nav-link" onclick="switchConsoleTab('ai')">AI Signals</button>
+        <button class="nav-link" onclick="exportReportJson()">Reports</button>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn-ghost" onclick="toggleTheme()" id="themeBtn" title="Toggle Dark/Light Theme">
+          <span>🌐</span> <span id="themeLabel">Light</span> ▾
+        </button>
+        <button class="btn-ghost" onclick="alert('Session authenticated as Reviewer (HttpOnly cookie active)')">
+          Sign In
+        </button>
+        <button class="btn-pill-primary" onclick="document.getElementById('codeInput').focus()">
+          Start Analysis
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Plagium-Inspired Hero Stage -->
+  <main class="hero-stage" id="top">
+    <!-- Floating Forensic Badges -->
+    <div class="float-badge float-badge--tl" title="Winnowing k-gram Fingerprinting">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+    </div>
+    <div class="float-badge float-badge--bl" title="Source Dossier & Token Stream">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M10 13l-2 2 2 2"/><path d="M14 17l2-2-2-2"/></svg>
+    </div>
+    <div class="float-badge float-badge--tr" title="Cohort Cluster Graph">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83"/><path d="M22 12A10 10 0 0 0 12 2v10z"/></svg>
+    </div>
+    <div class="float-badge float-badge--br" title="Multi-Language Tokenizer">
+      <svg width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M2 12h20"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+    </div>
+
+    <div class="hero-content">
+      <div class="eyebrow">COHORT TRIAGE • TOKEN FINGERPRINTING & HEURISTIC ENGINE</div>
+      <h1 class="hero-title">
+        Technology for AI and<br />code similarity detection
+      </h1>
+      <p class="hero-subtitle">
+        An ally in protecting academic integrity. Paste source code or upload a cohort batch to get a clear forensic review lead in seconds: structural matches via Winnowing &amp; Greedy String Tiling and heuristic AI signals.
+      </p>
+
+      <!-- Centered Pill Mode Switcher -->
+      <div class="mode-switcher" role="tablist" aria-label="Detector Mode">
+        <button type="button" class="mode-btn active" id="modeSimBtn" onclick="setDetectorMode('similarity')">
+          Similarity Detector
+        </button>
+        <button type="button" class="mode-btn" id="modeAiBtn" onclick="setDetectorMode('ai')">
+          AI Signal Detector
+        </button>
+      </div>
+
+      <!-- Central Input & Upload Workbench Card -->
+      <div class="workbench-card">
+        <div class="workbench-top-bar">
+          <span class="mono" style="color: var(--text-muted);" id="workbenchModeLabel">
+            MODE: WINNOWING (35%) + GREEDY STRING TILING (65%)
+          </span>
+          <div class="sample-chips">
+            <span style="color: var(--text-muted); font-size: 11px;">Quick load:</span>
+            <button type="button" class="chip-btn" onclick="loadSampleSnippet('collusion')">
+              Load Collusion Pair Sample (.py)
+            </button>
+            <button type="button" class="chip-btn" onclick="loadSampleSnippet('ai')">
+              Load Heuristic AI Sample (.ts)
+            </button>
+          </div>
+        </div>
+
+        <textarea
+          id="codeInput"
+          class="code-textarea"
+          placeholder="Paste or type student source code here, or attach a .zip / source batch below..."
+          oninput="updateCharStats()"
+        ></textarea>
+
+        <div class="workbench-footer">
+          <div>
+            <input
+              type="file"
+              id="filePicker"
+              multiple
+              accept=".zip,.py,.java,.cpp,.cc,.c,.ts,.tsx,.js,.jsx"
+              style="display: none;"
+              onchange="handleFilesSelected(event)"
+            />
+            <button type="button" class="btn-upload-outline" onclick="document.getElementById('filePicker').click()">
+              <svg width="15" height="15" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/></svg>
+              <span id="uploadBtnText">Upload submissions</span>
+            </button>
+          </div>
+
+          <div class="footer-right">
+            <span class="char-counter" id="charCounter">Your code has 0 characters (0 lines).</span>
+            <button type="button" class="btn-icon-trash" onclick="clearWorkbench()" title="Clear input">
+              <svg width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            <button type="button" class="btn-pill-primary" id="analyzeBtn" onclick="runAnalysis()">
+              Analyze
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <p class="hero-caption">
+        Supports <span class="mono">.zip, .py, .java, .cpp, .c, .ts, .js</span> • All flags are review leads requiring human verification.
+      </p>
+    </div>
+  </main>
+
+  <!-- Live Zixie Triage Console (KPIs + Queue + Side-by-Side Diff + AI Signals) -->
+  <section class="console-section" id="consoleSection">
+    <!-- 4 Navigable KPI Metric Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card" onclick="switchConsoleTab('queue')">
+        <div class="kpi-top">
+          <span>Submissions Analyzed</span>
+          <span class="mono" style="color: var(--accent);">/submissions →</span>
+        </div>
+        <div class="kpi-num" id="kpiTotal">6</div>
+        <div class="kpi-sub mono" id="kpiPairs">15 pairwise comparisons</div>
+      </div>
+
+      <div class="kpi-card" onclick="switchConsoleTab('queue')">
+        <div class="kpi-top">
+          <span>Candidates Needing Attention</span>
+          <span class="mono" style="color: var(--accent);">?filter=attention →</span>
+        </div>
+        <div class="kpi-num" style="color: var(--risk-amber-fg);" id="kpiAttention">3</div>
+        <div class="kpi-sub mono">Flagged by pair score or heuristic</div>
+      </div>
+
+      <div class="kpi-card" onclick="switchConsoleTab('diff')">
+        <div class="kpi-top">
+          <span>Collusion Clusters</span>
+          <span class="mono" style="color: var(--accent);">/similarity →</span>
+        </div>
+        <div class="kpi-num" style="color: var(--risk-red-fg);" id="kpiClusters">1</div>
+        <div class="kpi-sub mono">Connected subgraph (join ≥ 0.70)</div>
+      </div>
+
+      <div class="kpi-card" onclick="switchConsoleTab('ai')">
+        <div class="kpi-top">
+          <span>AI Signals</span>
+          <span class="mono" style="color: var(--accent);">/ai-detection →</span>
+        </div>
+        <div class="kpi-num" style="color: var(--risk-amber-fg);" id="kpiAi">1</div>
+        <div class="kpi-sub mono">Heuristic structural indicators</div>
+      </div>
+    </div>
+
+    <!-- Console Workspace Card -->
+    <div class="console-card">
+      <div class="console-header">
+        <div class="tab-bar" role="tablist">
+          <button class="tab-btn active" id="tabQueue" onclick="switchConsoleTab('queue')">
+            Priority Review Queue
+          </button>
+          <button class="tab-btn" id="tabDiff" onclick="switchConsoleTab('diff')">
+            Side-by-Side Token Diff (Tile Match)
+          </button>
+          <button class="tab-btn" id="tabAi" onclick="switchConsoleTab('ai')">
+            Heuristic AI Signals (Non-ML)
+          </button>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <span class="badge badge--clear" id="cohortStatusBadge">[OK] COHORT ACTIVE</span>
+          <button class="chip-btn" onclick="exportReportJson()">Export JSON</button>
+        </div>
+      </div>
+
+      <!-- TAB 1: Priority Review Queue -->
+      <div id="viewQueue">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Signal Type</th>
+              <th>Candidate(s)</th>
+              <th>Combined Score</th>
+              <th>Evidence Breakdown</th>
+              <th>Verdict</th>
+              <th>Inspect</th>
+            </tr>
+          </thead>
+          <tbody id="queueTableBody">
+            <tr>
+              <td class="mono">PAIR SIMILARITY</td>
+              <td>
+                <strong>Aarav Sharma</strong> vs <strong>Rohan Mehta</strong>
+                <div class="mono" style="font-size: 11px; color: var(--text-muted);">graph_bfs.py ↔ bfs_solver.py</div>
+              </td>
+              <td class="mono" style="font-weight: 700;">88.4%</td>
+              <td class="mono" style="font-size: 12px; color: var(--text-body);">
+                Winnowing: 84.0% • Tiling: 90.8% • 4 matched tiles
+              </td>
+              <td><span class="badge badge--collusion">[!] COLLUSION FLAG</span></td>
+              <td><button class="chip-btn" onclick="switchConsoleTab('diff')">Inspect Diff →</button></td>
+            </tr>
+            <tr>
+              <td class="mono">PAIR SIMILARITY</td>
+              <td>
+                <strong>Priya Nair</strong> vs <strong>Karthik Iyer</strong>
+                <div class="mono" style="font-size: 11px; color: var(--text-muted);">dijkstra.cpp ↔ shortest_path.cpp</div>
+              </td>
+              <td class="mono" style="font-weight: 700;">64.2%</td>
+              <td class="mono" style="font-size: 12px; color: var(--text-body);">
+                Winnowing: 59.5% • Tiling: 66.7% • 2 matched tiles
+              </td>
+              <td><span class="badge badge--suspicious">[~] SUSPICIOUS</span></td>
+              <td><button class="chip-btn" onclick="switchConsoleTab('diff')">Inspect Diff →</button></td>
+            </tr>
+            <tr>
+              <td class="mono">AI HEURISTIC</td>
+              <td>
+                <strong>Devika Rao</strong>
+                <div class="mono" style="font-size: 11px; color: var(--text-muted);">lru_cache.ts</div>
+              </td>
+              <td class="mono" style="font-weight: 700;">82% heuristic</td>
+              <td style="font-size: 12px; color: var(--text-body);">
+                Verbose Docstrings, Uniform Comment Density, Canonical Naming
+              </td>
+              <td><span class="badge badge--collusion">[!] HIGH AI SIGNAL</span></td>
+              <td><button class="chip-btn" onclick="switchConsoleTab('ai')">Inspect Signal →</button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- TAB 2: Side-by-Side Token Diff -->
+      <div id="viewDiff" style="display: none;">
+        <div style="padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px;">
+          <div>
+            <strong>Pair Comparison: Aarav Sharma (graph_bfs.py) ↔ Rohan Mehta (bfs_solver.py)</strong>
+            <div class="mono" style="font-size: 11.5px; color: var(--text-muted);">
+              Combined: 88.4% (0.35 × Winnowing 84.0% + 0.65 × Greedy String Tiling 90.8%) • Identifier renaming normalized to $ID
+            </div>
+          </div>
+          <span class="badge badge--collusion">[!] 4 MATCHED TOKEN TILES</span>
+        </div>
+        <div class="diff-grid">
+          <div class="code-pane">
+            <div class="code-pane-header">
+              <span>A: Aarav Sharma — graph_bfs.py</span>
+              <span>Lines 1–12</span>
+            </div>
+            <div class="code-line"><span class="line-num">1</span><span>from collections import deque</span></div>
+            <div class="code-line matched"><span class="line-num">2</span><span>def shortest_bfs(adj_list, start_node, target_node):</span></div>
+            <div class="code-line matched"><span class="line-num">3</span><span>    visited = {start_node}</span></div>
+            <div class="code-line matched"><span class="line-num">4</span><span>    queue = deque([(start_node, 0)])</span></div>
+            <div class="code-line matched"><span class="line-num">5</span><span>    while queue:</span></div>
+            <div class="code-line matched"><span class="line-num">6</span><span>        curr, dist = queue.popleft()</span></div>
+            <div class="code-line matched"><span class="line-num">7</span><span>        if curr == target_node:</span></div>
+            <div class="code-line matched"><span class="line-num">8</span><span>            return dist</span></div>
+            <div class="code-line matched"><span class="line-num">9</span><span>        for nxt in adj_list.get(curr, []):</span></div>
+            <div class="code-line matched"><span class="line-num">10</span><span>            if nxt not in visited:</span></div>
+            <div class="code-line matched"><span class="line-num">11</span><span>                visited.add(nxt)</span></div>
+            <div class="code-line"><span class="line-num">12</span><span>    return -1</span></div>
+          </div>
+
+          <div class="code-pane">
+            <div class="code-pane-header">
+              <span>B: Rohan Mehta — bfs_solver.py</span>
+              <span>Lines 1–12</span>
+            </div>
+            <div class="code-line"><span class="line-num">1</span><span>from collections import deque</span></div>
+            <div class="code-line matched"><span class="line-num">2</span><span>def find_path_len(graph_map, src_id, dst_id):</span></div>
+            <div class="code-line matched"><span class="line-num">3</span><span>    seen_nodes = {src_id}</span></div>
+            <div class="code-line matched"><span class="line-num">4</span><span>    work_q = deque([(src_id, 0)])</span></div>
+            <div class="code-line matched"><span class="line-num">5</span><span>    while work_q:</span></div>
+            <div class="code-line matched"><span class="line-num">6</span><span>        node, steps = work_q.popleft()</span></div>
+            <div class="code-line matched"><span class="line-num">7</span><span>        if node == dst_id:</span></div>
+            <div class="code-line matched"><span class="line-num">8</span><span>            return steps</span></div>
+            <div class="code-line matched"><span class="line-num">9</span><span>        for neighbor in graph_map.get(node, []):</span></div>
+            <div class="code-line matched"><span class="line-num">10</span><span>            if neighbor not in seen_nodes:</span></div>
+            <div class="code-line matched"><span class="line-num">11</span><span>                seen_nodes.add(neighbor)</span></div>
+            <div class="code-line"><span class="line-num">12</span><span>    return -1</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 3: Heuristic AI Signals -->
+      <div id="viewAi" style="display: none; padding: 18px;">
+        <div style="padding: 12px 16px; background: var(--accent-soft); border-left: 3px solid var(--accent); border-radius: 6px; margin-bottom: 16px; font-size: 12px;">
+          <strong class="mono">[NON-ML HEURISTIC DISCLOSURE]</strong> These indicators measure comment regularity, docstring verbosity, and canonical identifier templates. They are not produced by a trained classifier and must not be treated as proof of misconduct.
+        </div>
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>Heuristic Score</th>
+              <th>Readable Indicator Flags</th>
+              <th>Verdict</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><strong>Devika Rao</strong> <span class="mono" style="color: var(--text-muted);">(lru_cache.ts)</span></td>
+              <td class="mono" style="font-weight: 700;">82%</td>
+              <td>
+                <span class="badge badge--suspicious">Verbose Docstrings</span>
+                <span class="badge badge--suspicious">Uniform Comment Density</span>
+                <span class="badge badge--suspicious">Canonical Identifier Naming</span>
+              </td>
+              <td><span class="badge badge--collusion">[!] HIGH AI SIGNAL</span></td>
+            </tr>
+            <tr>
+              <td><strong>Aarav Sharma</strong> <span class="mono" style="color: var(--text-muted);">(graph_bfs.py)</span></td>
+              <td class="mono" style="font-weight: 700;">18%</td>
+              <td><span class="mono" style="color: var(--text-muted);">None triggered</span></td>
+              <td><span class="badge badge--clear">[OK] HUMAN LIKELY</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    let currentDetectorMode = 'similarity';
+
+    const SAMPLES = {
+      collusion: `from collections import deque
+
+def shortest_bfs(adj_list, start_node, target_node):
+    # Normalize identifiers to $ID and compare k-gram fingerprints
+    visited = {start_node}
+    queue = deque([(start_node, 0)])
+    while queue:
+        curr, dist = queue.popleft()
+        if curr == target_node:
+            return dist
+        for nxt in adj_list.get(curr, []):
+            if nxt not in visited:
+                visited.add(nxt)
+                queue.append((nxt, dist + 1))
+    return -1`,
+      ai: `/**
+ * Represents a Doubly Linked List Node for the LRU Cache implementation.
+ * Stores key, value, and bidirectional pointers for O(1) eviction.
+ */
+export class LruCacheService<K, V> {
+  private readonly capacity: number;
+  private readonly cacheMap: Map<K, V>;
+
+  constructor(capacity: number) {
+    // Initialize the capacity and underlying hash map structure
+    this.capacity = capacity;
+    this.cacheMap = new Map<K, V>();
+  }
+}`
+    };
+
+    function setDetectorMode(mode) {
+      currentDetectorMode = mode;
+      document.getElementById('modeSimBtn').classList.toggle('active', mode === 'similarity');
+      document.getElementById('modeAiBtn').classList.toggle('active', mode === 'ai');
+      document.getElementById('workbenchModeLabel').textContent =
+        mode === 'similarity'
+          ? 'MODE: WINNOWING (35%) + GREEDY STRING TILING (65%)'
+          : 'MODE: HEURISTIC AI WRITING SIGNAL INSPECTOR (NON-ML)';
+    }
+
+    function updateCharStats() {
+      const val = document.getElementById('codeInput').value;
+      const chars = val.length;
+      const lines = val ? val.split('\n').length : 0;
+      document.getElementById('charCounter').textContent =
+        `Your code has ${chars.toLocaleString()} characters (${lines} lines).`;
+    }
+
+    function loadSampleSnippet(type) {
+      document.getElementById('codeInput').value = SAMPLES[type];
+      setDetectorMode(type === 'ai' ? 'ai' : 'similarity');
+      updateCharStats();
+    }
+
+    function clearWorkbench() {
+      document.getElementById('codeInput').value = '';
+      document.getElementById('uploadBtnText').textContent = 'Upload submissions';
+      updateCharStats();
+    }
+
+    function handleFilesSelected(event) {
+      const files = Array.from(event.target.files || []);
+      if (!files.length) return;
+      document.getElementById('uploadBtnText').textContent =
+        `${files.length} file(s) staged (${files[0].name})`;
+    }
+
+    function switchConsoleTab(tab) {
+      document.getElementById('viewQueue').style.display = tab === 'queue' ? 'block' : 'none';
+      document.getElementById('viewDiff').style.display = tab === 'diff' ? 'block' : 'none';
+      document.getElementById('viewAi').style.display = tab === 'ai' ? 'block' : 'none';
+
+      document.getElementById('tabQueue').classList.toggle('active', tab === 'queue');
+      document.getElementById('tabDiff').classList.toggle('active', tab === 'diff');
+      document.getElementById('tabAi').classList.toggle('active', tab === 'ai');
+    }
+
+    function runAnalysis() {
+      const btn = document.getElementById('analyzeBtn');
+      const code = document.getElementById('codeInput').value.trim();
+      btn.textContent = 'Analyzing Tokens...';
+      btn.disabled = true;
+
+      setTimeout(() => {
+        btn.textContent = 'Analyze';
+        btn.disabled = false;
+
+        if (code.length > 0) {
+          document.getElementById('kpiTotal').textContent = '7';
+          document.getElementById('kpiPairs').textContent = '21 pairwise comparisons';
+          document.getElementById('cohortStatusBadge').textContent = '[OK] UPDATED JUST NOW';
+        }
+
+        switchConsoleTab(currentDetectorMode === 'ai' ? 'ai' : 'diff');
+        document.getElementById('consoleSection').scrollIntoView({ behavior: 'smooth' });
+      }, 450);
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+      html.setAttribute('data-theme', next);
+      document.getElementById('themeLabel').textContent = next === 'dark' ? 'Dark' : 'Light';
+    }
+
+    function exportReportJson() {
+      const data = {
+        reportId: 'zixie-live-cohort',
+        exportedAt: new Date().toISOString(),
+        engine: { winnowingWeight: 0.35, tilingWeight: 0.65, k: 8, w: 6, minRun: 5 },
+        summary: { candidates: 6, comparisons: 15, clusters: 1, aiSignals: 1 }
+      };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'zixie-report.json';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

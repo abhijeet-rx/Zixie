@@ -8,17 +8,19 @@ import {
 import { reportStore } from '../storage/report-store.js';
 import { DEMO_COHORT } from '../demo/sample-data.js';
 import AdmZip from 'adm-zip';
+import { requireAuth } from './auth.js';
+import mongoose from 'mongoose';
 
 export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
   // 1. Health check
   fastify.get('/health', async () => {
-    return { status: 'healthy', timestamp: new Date().toISOString() };
+    return { status: mongoose.connection.readyState === 1 ? 'healthy' : 'degraded', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected', timestamp: new Date().toISOString() };
   });
 
   // 2. Demo Cohort Analysis
-  fastify.get('/demo', async () => {
+  fastify.get('/demo', { preHandler: requireAuth }, async (request) => {
     const report = analyzeCandidateCohort(DEMO_COHORT);
-    const reportId = reportStore.save(DEMO_COHORT, report);
+    const reportId = await reportStore.save(request.user.sub, DEMO_COHORT, report);
     return {
       reportId,
       candidates: DEMO_COHORT,
@@ -27,7 +29,7 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // 3. Batch Analysis (Supports JSON or Multipart Upload / Zip)
-  fastify.post('/analyze', async (request, reply) => {
+  fastify.post('/analyze', { preHandler: requireAuth }, async (request, reply) => {
     let candidates: CandidateSubmission[] = [];
     let options: BatchAnalysisOptions = {};
 
@@ -110,7 +112,7 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
     }
 
     const report = analyzeCandidateCohort(candidates, options);
-    const reportId = reportStore.save(candidates, report);
+    const reportId = await reportStore.save(request.user.sub, candidates, report);
 
     return {
       reportId,
@@ -120,9 +122,9 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // 4. Get Report by ID
-  fastify.get('/reports/:id', async (request, reply) => {
+  fastify.get('/reports/:id', { preHandler: requireAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
-    const session = reportStore.get(id);
+    const session = await reportStore.get(id, request.user.sub);
 
     if (!session) {
       return reply.status(404).send({ error: 'Report not found' });
@@ -132,14 +134,14 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
   });
 
   // 5. Compare Two Candidates in a Report (For Side-by-Side Diff)
-  fastify.get('/reports/:id/compare', async (request, reply) => {
+  fastify.get('/reports/:id/compare', { preHandler: requireAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { candA: candAId, candB: candBId } = request.query as {
       candA?: string;
       candB?: string;
     };
 
-    const session = reportStore.get(id);
+    const session = await reportStore.get(id, request.user.sub);
     if (!session) {
       return reply.status(404).send({ error: 'Report session not found' });
     }

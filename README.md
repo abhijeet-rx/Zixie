@@ -28,7 +28,7 @@ During online coding rounds and remote technical interviews, candidates often:
 zixie/
 ├── packages/
 │   ├── engine/          # Algorithmic Core (Tokenizer, Winnowing, RKR-GST, AI Detector, Union-Find)
-│   ├── server/          # Fastify Backend REST API (Zip Ingestion, Report Cache, Diff APIs)
+│   ├── server/          # Fastify API, JWT authentication, MongoDB persistence
 │   └── client/          # React 19 + Tailwind Dashboard (Landing Hero, Auth, Welcome, Diff Modal)
 ├── samples/             # Realistic benchmark test submissions & bundled zip
 └── package.json         # Unified npm workspaces
@@ -116,6 +116,8 @@ Start both the backend API and frontend client with a single command:
 npm run dev
 ```
 
+Before starting, configure MongoDB and JWT settings in `.env` from `.env.example`.
+
 * **Frontend Dashboard:** [http://localhost:3000](http://localhost:3000)
 * **Fastify API Server:** [http://localhost:4000](http://localhost:4000)
 
@@ -139,13 +141,35 @@ A pre-packaged benchmark dataset is included in `samples/`:
 
 | Endpoint | Method | Description |
 | :--- | :--- | :--- |
-| `/api/health` | `GET` | Server health check and timestamp |
-| `/api/demo` | `GET` | Runs analysis on benchmark cohort |
-| `/api/analyze` | `POST` | Accepts multipart `.zip`/files or JSON candidate list |
-| `/api/reports/:id` | `GET` | Retrieves full cohort analysis report |
-| `/api/reports/:id/compare` | `GET` | Compares two candidates side-by-side with matched line ranges |
+| `/api/health` | `GET` | API and MongoDB readiness |
+| `/api/auth/register` | `POST` | Create account and issue JWT session cookie |
+| `/api/auth/login` | `POST` | Verify credentials and issue JWT session cookie |
+| `/api/auth/me` | `GET` | Return the current authenticated user |
+| `/api/auth/logout` | `POST` | Clear the JWT session cookie |
+| `/api/demo` | `GET` | Run sample cohort analysis (authenticated) |
+| `/api/analyze` | `POST` | Analyze uploaded files/ZIP or JSON candidates (authenticated) |
+| `/api/reports/:id` | `GET` | Retrieve an owned analysis report (authenticated) |
+| `/api/reports/:id/compare` | `GET` | Compare two candidates from an owned report (authenticated) |
 
 ---
 
 ## 📜 License
 MIT © [Abhijeet Singh](https://github.com/abhijeet-rx)
+# Local backend setup
+
+Zixie stores accounts and analysis reports in MongoDB. The API reads its
+configuration from a root `.env` file. Start MongoDB locally or use a MongoDB
+Atlas connection string, then copy `.env.example` to `.env` and set `MONGODB_URI`
+and a unique `JWT_SECRET` (at least 32 characters).
+
+Start the API and frontend from the repository root with `npm run dev`. The API
+connects to MongoDB before it starts listening on port 4000. Authentication is
+handled by `/api/auth/register`, `/api/auth/login`, `/api/auth/me`, and
+`/api/auth/logout`. JWTs are delivered in an HttpOnly, SameSite cookie. Reports
+and source submissions are saved to MongoDB and scoped to the signed-in user.
+
+Set `CLIENT_ORIGIN` to the frontend's exact origin when the browser calls the
+API directly. In local development, Vite proxies `/api` requests to the API.
+For production, set `NODE_ENV=production`, use HTTPS, configure `CLIENT_ORIGIN`,
+and provide a strong secret through your deployment environment; never commit
+the populated `.env` file.

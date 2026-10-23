@@ -31,8 +31,12 @@ export function AssessmentsScreen({ onNavigate }: AssessmentsScreenProps) {
   const [filter, setFilter] = useState<'ALL' | 'TRIAGE' | 'COMPLETED' | 'UPCOMING'>('ALL');
   const [search, setSearch] = useState('');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
-  const [newLang, setNewLang] = useState('Java');
+  const [createdNotice, setCreatedNotice] = useState('');
+  const [newTitle, setNewTitle] = useState(() => localStorage.getItem('zixie-assessment-draft-title') || '');
+  const [newLang, setNewLang] = useState(() => localStorage.getItem('zixie-assessment-draft-language') || 'Java');
+
+  React.useEffect(() => { localStorage.setItem('zixie-assessment-draft-title', newTitle); }, [newTitle]);
+  React.useEffect(() => { localStorage.setItem('zixie-assessment-draft-language', newLang); }, [newLang]);
 
   const [assessments, setAssessments] = useState<AssessmentItem[]>([
     {
@@ -123,10 +127,14 @@ export function AssessmentsScreen({ onNavigate }: AssessmentsScreenProps) {
     setAssessments([newItem, ...assessments]);
     setShowCreateModal(false);
     setNewTitle('');
+    localStorage.removeItem('zixie-assessment-draft-title');
+    setCreatedNotice('Assessment saved. Your draft has been cleared.');
+    window.setTimeout(() => setCreatedNotice(''), 3000);
   };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
+      {createdNotice && <div role="status" className="rounded-lg border border-emerald-200 bg-emerald-50 px-4 py-3 text-xs font-medium text-emerald-800">{createdNotice}</div>}
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-slate-200">
         <div>

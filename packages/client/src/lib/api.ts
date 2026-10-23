@@ -6,7 +6,7 @@ const API_BASE = '/api';
  * Fetch the benchmark demo report.
  */
 export async function fetchDemoReport(): Promise<AnalysisResponse> {
-  const res = await fetch(`${API_BASE}/demo`);
+  const res = await fetch(`${API_BASE}/demo`, { credentials: 'same-origin' });
   if (!res.ok) {
     throw new Error(`Demo request failed: ${res.status} ${res.statusText}`);
   }
@@ -25,6 +25,7 @@ export async function analyzeFiles(files: File[]): Promise<AnalysisResponse> {
   const res = await fetch(`${API_BASE}/analyze`, {
     method: 'POST',
     body: formData,
+    credentials: 'same-origin',
   });
 
   if (!res.ok) {
@@ -44,7 +45,8 @@ export async function fetchComparison(
   candBId: string
 ): Promise<CompareResponse> {
   const res = await fetch(
-    `${API_BASE}/reports/${reportId}/compare?candA=${encodeURIComponent(candAId)}&candB=${encodeURIComponent(candBId)}`
+    `${API_BASE}/reports/${reportId}/compare?candA=${encodeURIComponent(candAId)}&candB=${encodeURIComponent(candBId)}`,
+    { credentials: 'same-origin' },
   );
 
   if (!res.ok) {
@@ -58,7 +60,7 @@ export async function fetchComparison(
  * Fetch a stored report by ID.
  */
 export async function fetchReport(reportId: string): Promise<AnalysisResponse> {
-  const res = await fetch(`${API_BASE}/reports/${reportId}`);
+  const res = await fetch(`${API_BASE}/reports/${reportId}`, { credentials: 'same-origin' });
   if (!res.ok) {
     throw new Error(`Report fetch failed: ${res.status} ${res.statusText}`);
   }

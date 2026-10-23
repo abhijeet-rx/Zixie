@@ -1,37 +1,32 @@
-import { CohortAnalysisReport, CandidateSubmission } from '@zixie/engine';
+import { randomUUID } from 'node:crypto';
+import type { CohortAnalysisReport, CandidateSubmission } from '@zixie/engine';
+import { ReportModel } from '../models/report.js';
 
 export interface StoredSession {
   reportId: string;
-  createdAt: string;
+  ownerId: string;
+  createdAt: Date;
   candidates: CandidateSubmission[];
   report: CohortAnalysisReport;
 }
 
 class ReportStore {
-  private sessions = new Map<string, StoredSession>();
-
-  save(candidates: CandidateSubmission[], report: CohortAnalysisReport): string {
-    const reportId = `rep_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    this.sessions.set(reportId, {
-      reportId,
-      createdAt: new Date().toISOString(),
-      candidates,
-      report,
-    });
+  async save(ownerId: string, candidates: CandidateSubmission[], report: CohortAnalysisReport): Promise<string> {
+    const reportId = `rep_${randomUUID()}`;
+    await ReportModel.create({ reportId, ownerId, candidates, report });
     return reportId;
   }
 
-  get(reportId: string): StoredSession | undefined {
-    return this.sessions.get(reportId);
-  }
-
-  list(): Array<{ reportId: string; createdAt: string; totalCandidates: number; ringsCount: number }> {
-    return Array.from(this.sessions.values()).map((s) => ({
-      reportId: s.reportId,
-      createdAt: s.createdAt,
-      totalCandidates: s.report.summary.totalCandidates,
-      ringsCount: s.report.summary.collusionRingsCount,
-    }));
+  async get(reportId: string, ownerId: string): Promise<StoredSession | null> {
+    const stored = await ReportModel.findOne({ reportId, ownerId }).lean().exec();
+    if (!stored) return null;
+    return {
+      reportId: stored.reportId,
+      ownerId: stored.ownerId,
+      createdAt: stored.createdAt,
+      candidates: stored.candidates,
+      report: stored.report,
+    };
   }
 }
 

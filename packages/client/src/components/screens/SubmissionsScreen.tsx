@@ -33,8 +33,9 @@ export function SubmissionsScreen({
   loadingDiff,
 }: SubmissionsScreenProps) {
   const [selectedStudentId, setSelectedStudentId] = useState<string>('');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [filterMode, setFilterMode] = useState<'ALL' | 'ATTENTION' | 'CLEAN'>('ALL');
+  const [searchQuery, setSearchQuery] = useState(() => new URLSearchParams(window.location.search).get('search') ?? '');
+  const [filterMode, setFilterMode] = useState<'ALL' | 'ATTENTION' | 'CLEAN'>(() => new URLSearchParams(window.location.search).get('filter') === 'attention' ? 'ATTENTION' : 'ALL');
+  const [sortMode, setSortMode] = useState<'RISK' | 'NAME' | 'SIMILARITY'>('RISK');
   const [uploadError, setUploadError] = useState<string | null>(null);
   const [uploadSuccess, setUploadSuccess] = useState<string | null>(null);
 
@@ -118,8 +119,14 @@ export function SubmissionsScreen({
         return node.riskLevel === 'LOW';
       }
       return true;
+    }).sort((a, b) => {
+      if (sortMode === 'NAME') return a.candidateName.localeCompare(b.candidateName);
+      const score = (nodeId: string) => Math.max(0, ...report.pairwiseResults.filter((pair) => pair.candidateAId === nodeId || pair.candidateBId === nodeId).map((pair) => pair.similarityScore));
+      if (sortMode === 'SIMILARITY') return score(b.id) - score(a.id);
+      const rank = { HIGH: 0, MEDIUM: 1, LOW: 2 } as const;
+      return rank[a.riskLevel] - rank[b.riskLevel] || score(b.id) - score(a.id);
     });
-  }, [report, searchQuery, filterMode]);
+  }, [report, searchQuery, filterMode, sortMode]);
 
   const avgMatchPct = report ? Math.round(report.summary.averageSimilarity * 100) : 0;
   const flaggedCount = report
@@ -323,6 +330,9 @@ export function SubmissionsScreen({
                   >
                     Clean ({cleanCount})
                   </button>
+                  <select aria-label="Sort submissions" value={sortMode} onChange={(event) => setSortMode(event.target.value as typeof sortMode)} className="ml-1 rounded-md border border-slate-200 bg-white px-2 py-1.5 text-xs text-slate-600">
+                    <option value="RISK">Sort: risk</option><option value="SIMILARITY">Sort: similarity</option><option value="NAME">Sort: name</option>
+                  </select>
                 </div>
               </div>
 
