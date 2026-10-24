@@ -189,7 +189,7 @@ export const MatrixCellHover: React.FC<
     <motion.button
       type="button"
       whileHover={reduced ? undefined : { scale: 1.15, zIndex: 10 }}
-      whileTap={reduced ? undefined : { scale: 0.97 }}
+      whileTap={reduced ? undefined : { scale: 0.97, filter: 'blur(0.8px)' }}
       transition={reduced ? { duration: 0 } : { duration: 0.12 }}
       {...rest}
     >
@@ -236,7 +236,7 @@ export const PageTransition: React.FC<{
     <AnimatePresence mode="wait">
       <motion.div
         key={routeKey}
-        style={{ height: '100%', width: '100%' }}
+        style={{ height: 'auto', width: '100%', flex: '1 0 auto' }}
         initial={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
         animate={{ opacity: 1, y: 0 }}
         exit={reduced ? { opacity: 1, y: 0 } : { opacity: 0, y: -8 }}
@@ -263,7 +263,7 @@ export const MotionButton: React.FC<HTMLMotionProps<'button'>> = ({
   return (
     <motion.button
       whileHover={reduced ? undefined : { scale: 1.01 }}
-      whileTap={reduced ? undefined : { scale: 0.98 }}
+      whileTap={reduced ? undefined : { scale: 0.98, filter: 'blur(0.7px)' }}
       transition={reduced ? { duration: 0 } : { duration: 0.12 }}
       {...props}
     >

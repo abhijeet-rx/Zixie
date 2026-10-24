@@ -22,6 +22,7 @@ import {
 import { useApp } from '../../context/AppContext';
 import { MotionButton, PageTransition } from '../motion/primitives';
 import { api } from '../../lib/api';
+import { SiteFooter } from './SiteFooter';
 
 interface NavItem {
   label: string;
@@ -33,15 +34,15 @@ interface NavItem {
 const PRIMARY_NAV: NavItem[] = [
   { label: 'Overview', path: '/', icon: <LayoutDashboard size={16} /> },
   { label: 'Submissions', path: '/submissions', icon: <FolderCode size={16} /> },
-  { label: 'Similarity', path: '/similarity', icon: <GitCompareArrows size={16} /> },
-  { label: 'AI Signals', path: '/ai-signals', icon: <Sparkles size={16} /> },
+  { label: 'Code Matches', path: '/similarity', icon: <GitCompareArrows size={16} /> },
+  { label: 'AI Writing Clues', path: '/ai-signals', icon: <Sparkles size={16} /> },
   { label: 'Reports', path: '/reports', icon: <FileSpreadsheet size={16} /> },
 ];
 
 const DEMO_NAV: NavItem[] = [
   { label: 'Assessments', path: '/assessments', icon: <ClipboardList size={16} />, isDemo: true },
   { label: 'Team', path: '/team', icon: <Users size={16} />, isDemo: true },
-  { label: 'Integrations', path: '/integrations', icon: <Blocks size={16} />, isDemo: true },
+  { label: 'Course Platforms', path: '/integrations', icon: <Blocks size={16} />, isDemo: true },
   { label: 'Settings', path: '/settings', icon: <Settings size={16} />, isDemo: true },
 ];
 
@@ -111,12 +112,12 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
         >
           <span style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)' }}>
             <AlertTriangle size={14} color="var(--risk-suspicious)" />
-            Database connection unavailable. Some features may not work correctly.
+            We can’t connect to saved data right now. Some features may not work correctly.
           </span>
           <MotionButton
             type="button"
             onClick={dismissDbBanner}
-            aria-label="Dismiss database status banner"
+            aria-label="Dismiss saved data status message"
             style={{
               background: 'transparent',
               border: 'none',
@@ -142,7 +143,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             fontSize: 'var(--text-xs)',
           }}
         >
-          Local preview · authentication bypassed. Sample analysis is loaded locally; uploads need the API.
+          Local preview · sample results are shown. Uploading submissions is unavailable in this preview.
         </div>
       )}
 
@@ -249,7 +250,7 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
                         padding: '0 4px',
                       }}
                     >
-                      Demo
+                      Development
                     </span>
                   )}
                 </NavLink>
@@ -407,9 +408,12 @@ export const AppShell: React.FC<{ children: React.ReactNode }> = ({ children }) 
             overflowY: 'auto',
             padding: 'var(--space-6)',
             minWidth: 0,
+            display: 'flex',
+            flexDirection: 'column',
           }}
         >
           <PageTransition routeKey={location.pathname}>{children}</PageTransition>
+          <SiteFooter />
         </main>
       </div>
     </div>

@@ -4,6 +4,7 @@ import { Lock, AlertCircle } from 'lucide-react';
 import { ScaleIn, MotionButton } from '../components/motion/primitives';
 import { api } from '../lib/api';
 import { useApp } from '../context/AppContext';
+import { SiteFooter } from '../components/layout/SiteFooter';
 
 export const AuthPage: React.FC = () => {
   const { setUser, refreshReport } = useApp();
@@ -55,11 +56,20 @@ export const AuthPage: React.FC = () => {
         minHeight: '100vh',
         backgroundColor: 'var(--bg-base)',
         display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
+        flexDirection: 'column',
         padding: 'var(--space-4)',
       }}
     >
+      <main
+        style={{
+          flex: 1,
+          width: '100%',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: 'var(--space-4) 0',
+        }}
+      >
       <ScaleIn
         className="zixie-card"
         style={{
@@ -92,10 +102,10 @@ export const AuthPage: React.FC = () => {
             <span style={{ fontWeight: 600, fontSize: 'var(--text-base)' }}>Zixie</span>
           </div>
           <h1 style={{ fontSize: 'var(--text-lg)' }}>
-            {mode === 'login' ? 'Sign in to your workspace' : 'Create integrity reviewer account'}
+            {mode === 'login' ? 'Sign in to your workspace' : 'Create your reviewer account'}
           </h1>
           <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-            Session-scoped academic code forensics. Cookie authentication is enforced.
+            Review code submissions and compare them for possible matches.
           </p>
         </div>
 
@@ -126,7 +136,7 @@ export const AuthPage: React.FC = () => {
           {mode === 'register' && (
             <label style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
               <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-                Reviewer Name
+                Your Name
               </span>
               <input
                 type="text"
@@ -145,7 +155,7 @@ export const AuthPage: React.FC = () => {
 
           <label style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-1)' }}>
             <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-              Institutional Email
+              Work or school email
             </span>
             <input
               type="email"
@@ -235,6 +245,8 @@ export const AuthPage: React.FC = () => {
           </MotionButton>
         </div>
       </ScaleIn>
+      </main>
+      <SiteFooter />
     </div>
   );
 };

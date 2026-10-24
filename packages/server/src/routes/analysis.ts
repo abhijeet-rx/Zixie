@@ -10,11 +10,17 @@ import { DEMO_COHORT } from '../demo/sample-data.js';
 import AdmZip from 'adm-zip';
 import { requireAuth } from './auth.js';
 import mongoose from 'mongoose';
+import { connectToDatabase } from '../db/connect.js';
 
 export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
   // 1. Health check
-  fastify.get('/health', async () => {
-    return { status: mongoose.connection.readyState === 1 ? 'healthy' : 'degraded', database: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected', timestamp: new Date().toISOString() };
+  fastify.get('/health', async (_request, reply) => {
+    try {
+      await connectToDatabase();
+      return { status: 'healthy', database: 'connected', timestamp: new Date().toISOString() };
+    } catch {
+      return reply.code(503).send({ status: 'degraded', database: 'disconnected', timestamp: new Date().toISOString() });
+    }
   });
 
   // 2. Demo Cohort Analysis

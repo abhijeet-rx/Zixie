@@ -85,7 +85,7 @@ export const ErrorStateView: React.FC<{
     }}
   >
     <AlertCircle size={24} color="var(--risk-collusion)" />
-    <h2 style={{ fontSize: 'var(--text-base)' }}>Failed to load workspace data</h2>
+    <h2 style={{ fontSize: 'var(--text-base)' }}>Couldn’t load your results</h2>
     <p
       className="mono"
       style={{
@@ -111,7 +111,7 @@ export const ErrorStateView: React.FC<{
       }}
     >
       <RefreshCw size={14} />
-      Retry request
+      Try again
     </MotionButton>
   </div>
 );

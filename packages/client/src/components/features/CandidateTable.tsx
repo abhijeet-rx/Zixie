@@ -22,7 +22,6 @@ import {
 import { cn } from '../../lib/cn';
 import { RiskBadge } from './RiskBadge';
 import { Button } from '../ui/button';
-import { Badge } from '../ui/badge';
 import type { RiskLevel } from '../../lib/types';
 
 export interface CandidateRow {
@@ -102,9 +101,6 @@ export function CandidateTable({ candidates, onOpenDiff }: CandidateTableProps) 
           <div className="flex flex-col">
             <span className="font-semibold text-z-text-primary text-xs sm:text-sm">
               {row.original.candidateName}
-            </span>
-            <span className="font-mono text-[10px] text-z-text-muted">
-              REF #{row.original.id.slice(0, 8)}
             </span>
           </div>
         ),
@@ -350,9 +346,6 @@ export function CandidateTable({ candidates, onOpenDiff }: CandidateTableProps) 
                   Forensic Stylometry & Structural Analysis Dossier
                 </span>
               </div>
-              <Badge variant="muted" className="font-mono text-[10px]">
-                ID: {original.id}
-              </Badge>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

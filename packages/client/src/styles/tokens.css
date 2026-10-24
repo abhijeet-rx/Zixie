@@ -189,8 +189,8 @@
    TYPOGRAPHY SCALE
    ═══════════════════════════════════════════ */
 :root {
-  --font-display: 'Instrument Serif', serif;
-  --font-sans:    'Inter', system-ui, -apple-system, sans-serif;
+  --font-display: Georgia, 'Times New Roman', serif;
+  --font-sans:    Georgia, 'Times New Roman', serif;
   --font-mono:    'JetBrains Mono', 'SF Mono', 'Fira Code', monospace;
 
   /* Modular scale: 1.250 (major third) */

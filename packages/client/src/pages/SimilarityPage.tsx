@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { GitCompareArrows, Table, Grid } from 'lucide-react';
+import { GitCompareArrows, Table, Grid, CircleHelp, X, Check } from 'lucide-react';
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion';
 import { useApp } from '../context/AppContext';
 import { PairComparison } from '../types/zixie';
 import {
@@ -26,10 +27,36 @@ function interpolateHeatColor(score: number): string {
 export const SimilarityPage: React.FC = () => {
   const { report, loadingReport, reportError, refreshReport } = useApp();
   const navigate = useNavigate();
+  const reducedMotion = useReducedMotion();
+  const [showMatrixGuide, setShowMatrixGuide] = useState(() => {
+    try {
+      return sessionStorage.getItem('zixie-matrix-guide-seen') !== 'true';
+    } catch {
+      return true;
+    }
+  });
 
   const [viewMode, setViewMode] = useState<'matrix' | 'table'>('matrix');
   const [hoveredPair, setHoveredPair] = useState<PairComparison | null>(null);
   const [activePair, setActivePair] = useState<PairComparison | null>(null);
+
+  const closeMatrixGuide = () => {
+    try {
+      sessionStorage.setItem('zixie-matrix-guide-seen', 'true');
+    } catch {
+      // The guide still closes when session storage is unavailable.
+    }
+    setShowMatrixGuide(false);
+  };
+
+  React.useEffect(() => {
+    if (!showMatrixGuide) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') closeMatrixGuide();
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [showMatrixGuide]);
 
   const pairLookup = useMemo(() => {
     const map = new Map<string, PairComparison>();
@@ -54,8 +81,8 @@ export const SimilarityPage: React.FC = () => {
       <FadeUp>
         <EmptyStateView
           icon={<GitCompareArrows size={20} />}
-          heading="No pairwise similarity matrix"
-          subtext="Run an analysis first to see pairwise similarity scores."
+          heading="No comparisons to show yet"
+          subtext="Add at least two code submissions to compare them."
           actionLabel="Go to Submissions"
           onAction={() => navigate('/submissions')}
         />
@@ -77,30 +104,49 @@ export const SimilarityPage: React.FC = () => {
         }}
       >
         <div>
-          <h1 style={{ fontSize: 'var(--text-xl)' }}>Pairwise Similarity Matrix</h1>
+          <h1 style={{ fontSize: 'var(--text-xl)' }}>Code Similarity Map</h1>
           <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-            Select any cell to inspect Winnowing + Greedy String Tiling matched regions side-by-side.
+            Compare each submission with the others. Select a cell to see how much code matches and review the matching sections.
           </p>
         </div>
 
         {/* Accessibility Fallback Toggle: Matrix vs Sortable Table */}
-        <MotionButton
-          type="button"
-          onClick={() => setViewMode((v) => (v === 'matrix' ? 'table' : 'matrix'))}
-          className="zixie-button"
-          style={{
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: 'var(--space-2)',
-            padding: 'var(--space-2) var(--space-3)',
-            backgroundColor: 'var(--bg-elevated)',
-            color: 'var(--text-primary)',
-            cursor: 'pointer',
-          }}
-        >
-          {viewMode === 'matrix' ? <Table size={14} /> : <Grid size={14} />}
-          <span>{viewMode === 'matrix' ? 'Switch to accessible table view' : 'Switch to N×N matrix'}</span>
-        </MotionButton>
+        <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-2)' }}>
+          <MotionButton
+            type="button"
+            onClick={() => setShowMatrixGuide(true)}
+            className="zixie-button"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              padding: 'var(--space-2) var(--space-3)',
+              backgroundColor: 'var(--bg-elevated)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            <CircleHelp size={14} />
+            <span>How to read this map</span>
+          </MotionButton>
+          <MotionButton
+            type="button"
+            onClick={() => setViewMode((v) => (v === 'matrix' ? 'table' : 'matrix'))}
+            className="zixie-button"
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 'var(--space-2)',
+              padding: 'var(--space-2) var(--space-3)',
+              backgroundColor: 'var(--bg-elevated)',
+              color: 'var(--text-primary)',
+              cursor: 'pointer',
+            }}
+          >
+            {viewMode === 'matrix' ? <Table size={14} /> : <Grid size={14} />}
+            <span>{viewMode === 'matrix' ? 'View as a simple list' : 'View as a grid'}</span>
+          </MotionButton>
+        </div>
       </div>
 
       {/* Hover Tooltip Bar */}
@@ -122,13 +168,13 @@ export const SimilarityPage: React.FC = () => {
               <strong>{hoveredPair.candidateBName}</strong>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
-              <span className="mono">Score: {hoveredPair.combinedScore.toFixed(3)}</span>
+              <span className="mono">Similarity: {Math.round(hoveredPair.combinedScore * 100)}%</span>
               <VerdictBadge verdict={hoveredPair.verdict} />
             </div>
           </>
         ) : (
           <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-            Hover over a matrix cell to preview candidate pair score and verdict.
+            Hover over a cell to preview the two submissions and their match result.
           </span>
         )}
       </div>
@@ -184,7 +230,7 @@ export const SimilarityPage: React.FC = () => {
                     return (
                       <div
                         key={`${row.id}-${col.id}`}
-                        title={`${row.candidateName} (Self-comparison not applicable)`}
+                        title={`${row.candidateName} compared with itself`}
                         style={{
                           width: 44,
                           height: 36,
@@ -211,9 +257,7 @@ export const SimilarityPage: React.FC = () => {
                       onMouseEnter={() => setHoveredPair(pair)}
                       onMouseLeave={() => setHoveredPair(null)}
                       onClick={() => pair && setActivePair(pair)}
-                      aria-label={`${row.candidateName} and ${col.candidateName}: ${score.toFixed(
-                        3
-                      )}`}
+                      aria-label={`${row.candidateName} and ${col.candidateName}: ${Math.round(score * 100)}% similarity`}
                       style={{
                         width: 44,
                         height: 36,
@@ -221,12 +265,12 @@ export const SimilarityPage: React.FC = () => {
                         border: '1px solid var(--border)',
                         borderRadius: 'var(--radius-control)',
                         color: 'var(--text-primary)',
-                        fontFamily: 'var(--font-mono)',
+                        fontFamily: 'var(--font-sans)',
                         fontSize: 'var(--text-xs)',
                         cursor: pair ? 'pointer' : 'default',
                       }}
                     >
-                      {score.toFixed(2)}
+                      {Math.round(score * 100)}%
                     </MatrixCellHover>
                   );
                 })}
@@ -239,12 +283,12 @@ export const SimilarityPage: React.FC = () => {
           <table className="zixie-table">
             <thead>
               <tr>
-                <th>Candidate A</th>
-                <th>Candidate B</th>
-                <th>Combined</th>
-                <th>Winnowing</th>
-                <th>Tiling</th>
-                <th>Verdict</th>
+                <th>Submission 1</th>
+                <th>Submission 2</th>
+                <th>Overall match</th>
+                <th>Text match</th>
+                <th>Code structure match</th>
+                <th>Result</th>
               </tr>
             </thead>
             <tbody>
@@ -256,9 +300,9 @@ export const SimilarityPage: React.FC = () => {
                 >
                   <td>{p.candidateAName}</td>
                   <td>{p.candidateBName}</td>
-                  <td className="mono">{p.combinedScore.toFixed(3)}</td>
-                  <td className="mono">{p.winnowingScore.toFixed(3)}</td>
-                  <td className="mono">{p.tilingScore.toFixed(3)}</td>
+                  <td className="mono">{Math.round(p.combinedScore * 100)}%</td>
+                  <td className="mono">{Math.round(p.winnowingScore * 100)}%</td>
+                  <td className="mono">{Math.round(p.tilingScore * 100)}%</td>
                   <td>
                     <VerdictBadge verdict={p.verdict} />
                   </td>
@@ -275,6 +319,107 @@ export const SimilarityPage: React.FC = () => {
         candidateB={candidates.find((c) => c.id === activePair?.candidateBId)}
         onClose={() => setActivePair(null)}
       />
+
+      <AnimatePresence>
+        {showMatrixGuide && (
+          <motion.div
+            role="presentation"
+            onClick={closeMatrixGuide}
+            initial={reducedMotion ? { opacity: 1 } : { opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={reducedMotion ? { opacity: 0 } : { opacity: 0 }}
+            transition={{ duration: reducedMotion ? 0 : 0.18 }}
+            style={{
+              position: 'fixed',
+              inset: 0,
+              zIndex: 100,
+              display: 'grid',
+              placeItems: 'center',
+              padding: 'var(--space-4)',
+              backgroundColor: 'rgba(9, 9, 11, 0.58)',
+              backdropFilter: 'blur(5px)',
+            }}
+          >
+            <motion.section
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="matrix-guide-title"
+              onClick={(event) => event.stopPropagation()}
+              initial={reducedMotion ? { opacity: 1 } : { opacity: 0, y: 12, scale: 0.98, filter: 'blur(4px)' }}
+              animate={{ opacity: 1, y: 0, scale: 1, filter: 'blur(0px)' }}
+              exit={reducedMotion ? { opacity: 0 } : { opacity: 0, y: 8, scale: 0.985, filter: 'blur(3px)' }}
+              transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.22, 1, 0.36, 1] }}
+              className="zixie-card"
+              style={{
+                width: 'min(100%, 520px)',
+                padding: 'var(--space-5)',
+                boxShadow: '0 24px 70px rgba(0, 0, 0, 0.28)',
+              }}
+            >
+              <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: 'var(--space-3)' }}>
+                <div>
+                  <p className="mono" style={{ margin: '0 0 var(--space-1)', color: 'var(--accent)', fontSize: 'var(--text-xs)' }}>
+                    QUICK GUIDE
+                  </p>
+                  <h2 id="matrix-guide-title" style={{ fontSize: 'var(--text-lg)' }}>How to read this map</h2>
+                </div>
+                <MotionButton
+                  type="button"
+                  onClick={closeMatrixGuide}
+                  aria-label="Close comparison guide"
+                  className="zixie-button"
+                  style={{ padding: 'var(--space-1)', backgroundColor: 'var(--bg-elevated)', color: 'var(--text-secondary)', cursor: 'pointer' }}
+                >
+                  <X size={16} />
+                </MotionButton>
+              </div>
+
+              <div style={{ display: 'grid', gap: 'var(--space-3)', margin: 'var(--space-4) 0' }}>
+                {[
+                  ['1', 'Find two submissions', 'Choose a name on the left and another across the top. The cell where they meet shows their comparison.'],
+                  ['2', 'Read the score and color', 'Scores run from 0% to 100%. Brighter, warmer cells mean more code is alike. A dash marks a submission compared with itself.'],
+                  ['3', 'Review the matching sections', 'Hover for a quick preview. Click a cell to see the scores and the matching code side by side.'],
+                ].map(([number, title, description]) => (
+                  <div key={number} style={{ display: 'flex', alignItems: 'flex-start', gap: 'var(--space-3)' }}>
+                    <span
+                      aria-hidden="true"
+                      style={{
+                        display: 'grid',
+                        placeItems: 'center',
+                        flex: '0 0 26px',
+                        height: 26,
+                        borderRadius: '50%',
+                        backgroundColor: 'var(--accent-subtle)',
+                        color: 'var(--accent)',
+                        fontSize: 'var(--text-xs)',
+                        fontWeight: 600,
+                      }}
+                    >
+                      {number}
+                    </span>
+                    <div>
+                      <strong style={{ display: 'block', marginBottom: 2, fontSize: 'var(--text-sm)' }}>{title}</strong>
+                      <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-xs)', lineHeight: 1.6 }}>{description}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+                <MotionButton
+                  type="button"
+                  onClick={closeMatrixGuide}
+                  className="zixie-button"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: 'var(--space-2)', padding: 'var(--space-2) var(--space-4)', backgroundColor: 'var(--accent)', borderColor: 'var(--accent)', color: '#fff', cursor: 'pointer' }}
+                >
+                  <Check size={15} />
+                  Got it
+                </MotionButton>
+              </div>
+            </motion.section>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </FadeUp>
   );
 };

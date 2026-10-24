@@ -7,10 +7,10 @@ export default {
   darkMode: 'class',
   theme: {
     fontFamily: {
-      display: ['Instrument Serif', 'serif'],
-      sans:    ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+      display: ['Georgia', 'Times New Roman', 'serif'],
+      sans:    ['Georgia', 'Times New Roman', 'serif'],
       mono:    ['JetBrains Mono', 'SF Mono', 'Fira Code', 'monospace'],
-      jakarta: ['Plus Jakarta Sans', 'system-ui', 'sans-serif'],
+      jakarta: ['Georgia', 'Times New Roman', 'serif'],
     },
     extend: {
       colors: {

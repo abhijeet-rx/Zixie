@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import React, { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import { AnalysisReport, UserSession } from '../types/zixie';
 import { api, ApiError } from '../lib/api';
 import { createLocalSampleReport } from '../demo/localSample';
@@ -36,13 +36,30 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [report, setReport] = useState<AnalysisReport | null>(null);
   const [loadingReport, setLoadingReport] = useState<boolean>(true);
   const [reportError, setReportError] = useState<string | null>(null);
+  const themeTransitionTimeout = useRef<number | null>(null);
 
   const toggleTheme = useCallback(() => {
+    document.documentElement.classList.add('theme-transitioning');
+    if (themeTransitionTimeout.current !== null) {
+      window.clearTimeout(themeTransitionTimeout.current);
+    }
+    themeTransitionTimeout.current = window.setTimeout(() => {
+      document.documentElement.classList.remove('theme-transitioning');
+      themeTransitionTimeout.current = null;
+    }, 760);
+
     setTheme((prev) => {
       const next = prev === 'dark' ? 'light' : 'dark';
       document.documentElement.setAttribute('data-theme', next);
       return next;
     });
+  }, []);
+
+  useEffect(() => () => {
+    if (themeTransitionTimeout.current !== null) {
+      window.clearTimeout(themeTransitionTimeout.current);
+    }
+    document.documentElement.classList.remove('theme-transitioning');
   }, []);
 
   const refreshReport = useCallback(async () => {

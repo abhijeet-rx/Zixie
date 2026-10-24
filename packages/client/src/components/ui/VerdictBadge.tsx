@@ -14,7 +14,7 @@ export const VerdictBadge: React.FC<{ verdict: VerdictType }> = ({ verdict }) =>
             gap: 'var(--space-1)',
             padding: '2px var(--space-2)',
             fontSize: 'var(--text-xs)',
-            fontFamily: 'var(--font-mono)',
+            fontFamily: 'var(--font-sans)',
             fontWeight: 500,
             color: 'var(--risk-collusion)',
             backgroundColor: 'rgba(239, 68, 68, 0.12)',
@@ -23,7 +23,7 @@ export const VerdictBadge: React.FC<{ verdict: VerdictType }> = ({ verdict }) =>
           }}
         >
           <ShieldAlert size={12} aria-hidden="true" />
-          COLLUSION_DETECTED
+          Strong match — review
         </span>
       </RiskPulse>
     );
@@ -38,7 +38,7 @@ export const VerdictBadge: React.FC<{ verdict: VerdictType }> = ({ verdict }) =>
           gap: 'var(--space-1)',
           padding: '2px var(--space-2)',
           fontSize: 'var(--text-xs)',
-          fontFamily: 'var(--font-mono)',
+          fontFamily: 'var(--font-sans)',
           fontWeight: 500,
           color: 'var(--risk-suspicious)',
           backgroundColor: 'rgba(245, 158, 11, 0.12)',
@@ -47,7 +47,7 @@ export const VerdictBadge: React.FC<{ verdict: VerdictType }> = ({ verdict }) =>
         }}
       >
         <AlertTriangle size={12} aria-hidden="true" />
-        SUSPICIOUS
+        Needs review
       </span>
     );
   }
@@ -60,7 +60,7 @@ export const VerdictBadge: React.FC<{ verdict: VerdictType }> = ({ verdict }) =>
         gap: 'var(--space-1)',
         padding: '2px var(--space-2)',
         fontSize: 'var(--text-xs)',
-        fontFamily: 'var(--font-mono)',
+        fontFamily: 'var(--font-sans)',
         fontWeight: 500,
         color: 'var(--risk-clear)',
         backgroundColor: 'rgba(34, 197, 94, 0.12)',
@@ -69,7 +69,7 @@ export const VerdictBadge: React.FC<{ verdict: VerdictType }> = ({ verdict }) =>
       }}
     >
       <CheckCircle2 size={12} aria-hidden="true" />
-      CLEAR
+      No close match
     </span>
   );
 };

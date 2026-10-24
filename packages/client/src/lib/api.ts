@@ -10,8 +10,10 @@ export class ApiError extends Error {
 }
 
 const latestReportKey = 'zixie_latest_report_id';
-const apiBaseUrl = (import.meta.env.VITE_API_BASE_URL || '').replace(/\/$/, '');
-const apiUrl = (path: string) => `${apiBaseUrl}${path}`;
+// Keep API traffic same-origin in production. The frontend Vercel project
+// rewrites /api/* to the API project, so the HttpOnly session cookie stays
+// first-party instead of being blocked as a cross-site cookie.
+const apiUrl = (path: string) => path;
 
 function handleUnauthorized(): never {
   if (typeof window !== 'undefined' && window.location.pathname !== '/auth') {

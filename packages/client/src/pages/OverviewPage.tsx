@@ -62,9 +62,9 @@ export const OverviewPage: React.FC = () => {
       <FadeUp>
         <EmptyStateView
           icon={<FolderCode size={20} />}
-          heading="No active submission analysis"
-          subtext="Upload a submission batch to begin analysis. Supported: .zip, .py, .java, .cpp, .c, .ts, .js, .go"
-          actionLabel="Upload submission batch"
+          heading="No submissions to review yet"
+          subtext="Add at least two code submissions to compare them. You can upload code files or a ZIP folder."
+          actionLabel="Add submissions"
           onAction={() => navigate('/submissions')}
         />
       </FadeUp>
@@ -77,28 +77,28 @@ export const OverviewPage: React.FC = () => {
       value: report.totalSubmissions,
       icon: <FolderCode size={16} color="var(--text-secondary)" />,
       route: '/submissions',
-      trendLabel: 'Current batch',
+      trendLabel: 'In this submission set',
     },
     {
-      label: 'Collusion Detected',
+      label: 'Strong Code Matches',
       value: report.flaggedCollusionCount,
       icon: <ShieldAlert size={16} color="var(--risk-collusion)" />,
       route: '/similarity',
-      trendLabel: 'High-risk pairs',
+      trendLabel: 'Pairs with high overlap',
     },
     {
-      label: 'Suspicious Pairs',
+      label: 'Matches to Review',
       value: report.suspiciousPairCount,
       icon: <AlertTriangle size={16} color="var(--risk-suspicious)" />,
       route: '/similarity',
-      trendLabel: 'Requires review',
+      trendLabel: 'Worth a closer look',
     },
     {
-      label: 'Elevated AI Signals',
+      label: 'Possible AI-Written Code',
       value: report.elevatedAiSignalCount,
       icon: <Sparkles size={16} color="var(--risk-ai)" />,
       route: '/ai-signals',
-      trendLabel: 'Heuristic flags',
+      trendLabel: 'Writing patterns to review',
     },
   ];
 
@@ -117,9 +117,12 @@ export const OverviewPage: React.FC = () => {
         }}
       >
         <div>
-          <h1 style={{ fontSize: 'var(--text-xl)' }}>Integrity Overview</h1>
+          <h1 style={{ fontSize: 'var(--text-xl)' }}>Review Overview</h1>
           <p className="mono" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
-            Batch: {report.batchName} · ID: {report.reportId}
+            Submission set: {report.batchName}
+          </p>
+          <p style={{ marginTop: 'var(--space-1)', fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+            Similarity and AI-writing results help guide a review; they do not prove misconduct.
           </p>
         </div>
       </div>
@@ -198,10 +201,10 @@ export const OverviewPage: React.FC = () => {
       >
         <div className="zixie-card" style={{ padding: 'var(--space-4)' }}>
           <h2 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-1)' }}>
-            Pairwise Similarity Distribution
+            Similarity Across Submissions
           </h2>
           <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>
-            Frequency of combined Winnowing + Greedy String Tiling scores across all candidate pairs
+            Each bar shows how many pairs fall within a similarity range. Higher scores mean more code in common.
           </p>
 
           <div
@@ -260,23 +263,23 @@ export const OverviewPage: React.FC = () => {
               marginTop: 'var(--space-2)',
             }}
           >
-            <span>0.00</span>
-            <span>0.50</span>
-            <span>1.00</span>
+            <span>0%</span>
+            <span>50%</span>
+            <span>100%</span>
           </div>
         </div>
 
         {/* Highest Priority Pairs Table */}
         <div className="zixie-card" style={{ padding: 'var(--space-4)' }}>
           <h2 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-3)' }}>
-            Highest Similarity Pairs
+            Pairs with the Most Similar Code
           </h2>
           <table className="zixie-table">
             <thead>
               <tr>
-                <th>Candidate Pair</th>
-                <th>Score</th>
-                <th>Verdict</th>
+                <th>Submissions</th>
+                <th>Similarity</th>
+                <th>Result</th>
               </tr>
             </thead>
             <tbody>

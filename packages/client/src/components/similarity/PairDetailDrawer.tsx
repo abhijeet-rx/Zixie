@@ -75,7 +75,7 @@ export const PairDetailDrawer: React.FC<PairDetailDrawerProps> = ({
                     className="mono"
                     style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}
                   >
-                    Pair ID: {pair.pairId}
+                    Code comparison
                   </span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
@@ -108,9 +108,9 @@ export const PairDetailDrawer: React.FC<PairDetailDrawerProps> = ({
                 }}
               >
                 {[
-                  { label: 'Combined Score', score: pair.combinedScore },
-                  { label: 'Winnowing Fingerprint', score: pair.winnowingScore },
-                  { label: 'Greedy String Tiling', score: pair.tilingScore },
+                  { label: 'Overall match', score: pair.combinedScore },
+                  { label: 'Text match', score: pair.winnowingScore },
+                  { label: 'Code structure match', score: pair.tilingScore },
                 ].map((metric) => (
                   <div key={metric.label} style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                     <div
@@ -121,7 +121,7 @@ export const PairDetailDrawer: React.FC<PairDetailDrawerProps> = ({
                       }}
                     >
                       <span style={{ color: 'var(--text-secondary)' }}>{metric.label}</span>
-                      <span className="mono">{metric.score.toFixed(3)}</span>
+                      <span className="mono">{Math.round(metric.score * 100)}%</span>
                     </div>
                     <div
                       style={{

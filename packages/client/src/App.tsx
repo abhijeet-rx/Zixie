@@ -31,7 +31,7 @@ export const App: React.FC = () => {
                     element={
                       <DemoScreen
                         title="Course Assessments"
-                        description="Configure assignment rubrics, starter-code exclusion templates, and submission windows."
+                        description="Set grading guides, choose which provided starter files to ignore, and set submission deadlines."
                       />
                     }
                   />
@@ -40,7 +40,7 @@ export const App: React.FC = () => {
                     element={
                       <DemoScreen
                         title="Academic Integrity Team"
-                        description="Manage teaching assistant roles, reviewer permissions, and department audit access."
+                        description="Manage teaching assistant roles and choose who can review submissions and reports."
                       />
                     }
                   />
@@ -48,8 +48,8 @@ export const App: React.FC = () => {
                     path="/integrations"
                     element={
                       <DemoScreen
-                        title="LMS & Git Integrations"
-                        description="Connect Canvas, Gradescope, and GitHub Classroom webhooks."
+                        title="Course Platform Connections"
+                        description="Connect Canvas, Gradescope, or GitHub Classroom to bring in course submissions."
                       />
                     }
                   />
@@ -58,7 +58,7 @@ export const App: React.FC = () => {
                     element={
                       <DemoScreen
                         title="Workspace Settings"
-                        description="Review retention policies and institutional authentication configuration."
+                        description="Choose how long submissions are kept and how your organization signs in."
                       />
                     }
                   />

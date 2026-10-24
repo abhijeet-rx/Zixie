@@ -24,7 +24,7 @@ export const DemoScreen: React.FC<{ title: string; description: string }> = ({
         }}
       >
         <Info size={16} color="var(--accent)" />
-        <span>This feature is in development. Data shown is for illustration only.</span>
+        <span>This feature is being built. The examples shown are for demonstration only.</span>
       </div>
 
       <div className="zixie-card" style={{ padding: 'var(--space-6)' }}>

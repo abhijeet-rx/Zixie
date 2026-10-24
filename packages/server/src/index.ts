@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import type { IncomingMessage, ServerResponse } from 'node:http';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import Fastify from 'fastify';
@@ -58,6 +59,16 @@ export function createServer() {
   // below that limit; the route also caps the combined extracted source at 4 MiB.
   app.register(multipart, { limits: { fileSize: 4 * 1024 * 1024 } });
 
+  app.addHook('onRequest', async (request, reply) => {
+    if (request.url.split('?')[0] === '/api/health' || mongoose.connection.readyState === 1) return;
+    try {
+      await connectToDatabase();
+    } catch (error) {
+      app.log.error({ err: error }, 'MongoDB connection failed');
+      return reply.code(503).send({ error: 'Database unavailable.' });
+    }
+  });
+
   app.register(authRoutes, { prefix: '/api/auth' });
   app.register(analysisRoutes, { prefix: '/api' });
   app.addHook('onClose', async () => { if (mongoose.connection.readyState !== 0) await mongoose.disconnect(); });
@@ -66,10 +77,10 @@ export function createServer() {
 }
 
 const server = createServer();
-server.addHook('onReady', async () => {
-  await connectToDatabase();
-});
-export default server;
+export default async function handler(request: IncomingMessage, response: ServerResponse) {
+  await server.ready();
+  server.server.emit('request', request, response);
+}
 
 // Start a local listener only when this module is the process entry point.
 if (process.env.VERCEL !== '1' && process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

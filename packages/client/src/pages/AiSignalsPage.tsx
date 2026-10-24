@@ -8,11 +8,11 @@ import { EmptyStateView, ErrorStateView } from '../components/ui/StateViews';
 import { VerdictBadge } from '../components/ui/VerdictBadge';
 
 const READABLE_FLAG_LABELS: Record<AiHeuristicFlag, string> = {
-  verboseDocstrings: 'Verbose Docstrings',
-  uniformCommentDensity: 'Uniform Comment Density',
-  canonicalNamingPattern: 'Canonical Naming Pattern',
-  lowEntropyFormatting: 'Low-Entropy Formatting',
-  standardAiBoilerplate: 'Standard AI Boilerplate',
+  verboseDocstrings: 'Detailed code explanations',
+  uniformCommentDensity: 'Similar amount of comments throughout',
+  canonicalNamingPattern: 'Consistent naming style',
+  lowEntropyFormatting: 'Very regular formatting',
+  standardAiBoilerplate: 'Common AI-style code patterns',
 };
 
 export const AiSignalsPage: React.FC = () => {
@@ -40,8 +40,8 @@ export const AiSignalsPage: React.FC = () => {
       <FadeUp>
         <EmptyStateView
           icon={<Sparkles size={20} />}
-          heading="No AI heuristic signals available"
-          subtext="Upload and analyze a submission batch first to inspect code pattern heuristics."
+          heading="No AI writing clues to review yet"
+          subtext="Add and compare code submissions first. Zixie will point out writing patterns that may be worth a closer look."
           actionLabel="Upload submissions"
           onAction={() => navigate('/submissions')}
         />
@@ -52,7 +52,7 @@ export const AiSignalsPage: React.FC = () => {
   return (
     <FadeUp style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
       <div>
-        <h1 style={{ fontSize: 'var(--text-xl)' }}>AI Heuristic Signals</h1>
+        <h1 style={{ fontSize: 'var(--text-xl)' }}>Possible AI-Writing Clues</h1>
       </div>
 
       {/* Prominent Info Disclaimer Banner */}
@@ -72,8 +72,7 @@ export const AiSignalsPage: React.FC = () => {
       >
         <Info size={18} color="var(--accent)" style={{ flexShrink: 0 }} />
         <span>
-          These are heuristic signals based on code patterns, not a trained AI model. Scores
-          indicate statistical likelihood only and are not proof of misconduct.
+          These clues come from patterns in the code and can be wrong. They are not proof that AI was used. Review the work and discuss it with the student or applicant before drawing conclusions.
         </span>
       </div>
 
@@ -99,12 +98,12 @@ export const AiSignalsPage: React.FC = () => {
                     textTransform: 'uppercase',
                   }}
                 >
-                  <span>Heuristic Probability</span>
+                  <span>AI-writing estimate</span>
                   <ArrowUpDown size={12} />
                 </MotionButton>
               </th>
-              <th>Verdict</th>
-              <th>Pattern Signals</th>
+              <th>Result</th>
+              <th>Patterns noticed</th>
             </tr>
           </thead>
           <tbody>
@@ -159,7 +158,7 @@ export const AiSignalsPage: React.FC = () => {
                     <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
                       {c.aiFlags.length === 0 ? (
                         <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
-                          No elevated flags
+                          No strong AI-like patterns found
                         </span>
                       ) : (
                         c.aiFlags.map((flag) => (
