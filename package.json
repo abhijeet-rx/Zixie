@@ -8,6 +8,8 @@
   ],
   "scripts": {
     "build": "npm run --workspaces --if-present build",
+    "build:client:deploy": "npm run build --workspace=@zixie/engine && npm run build --workspace=@zixie/client",
+    "build:server:deploy": "npm run build --workspace=@zixie/engine && npm run build --workspace=@zixie/server",
     "test": "vitest run",
     "test:watch": "vitest",
     "predev": "kill-port 3000 4000 || exit 0",

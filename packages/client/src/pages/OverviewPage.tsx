@@ -1,291 +1,302 @@
-import React, { useMemo } from "react";
-import { useNavigate } from "react-router-dom";
-import { useWorkspace } from "../store/auth";
+import React, { useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
-  AiVerdictBadge,
-  EmptyCohortState,
-  ErrorStatePanel,
-  PairVerdictBadge,
-  ScreenSkeleton,
-} from "../components/StatePrimitives";
+  FolderCode,
+  ShieldAlert,
+  AlertTriangle,
+  Sparkles,
+  ArrowUpRight,
+} from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import {
+  FadeUp,
+  StaggerContainer,
+  StaggerItem,
+  CountUp,
+  MotionButton,
+} from '../components/motion/primitives';
+import { EmptyStateView, ErrorStateView } from '../components/ui/StateViews';
+import { VerdictBadge } from '../components/ui/VerdictBadge';
 
 export const OverviewPage: React.FC = () => {
-  const { activePayload, reportLoading, reportError, loadDemoCohort, isPreviewMode } = useWorkspace();
+  const { report, loadingReport, reportError, refreshReport } = useApp();
   const navigate = useNavigate();
 
-  const metrics = useMemo(() => {
-    if (!activePayload) return null;
-    const { candidates, report } = activePayload;
-
-    const candidateMap = new Map(candidates.map((c) => [c.id, c]));
-
-    const flaggedCandidateIds = new Set<string>();
-    report.pairResults.forEach((p) => {
-      if (p.verdict !== "CLEAR") {
-        flaggedCandidateIds.add(p.candidateAId);
-        flaggedCandidateIds.add(p.candidateBId);
-      }
+  // Compute Dolos-inspired 10-bucket similarity distribution histogram
+  const distributionBuckets = useMemo(() => {
+    const counts = new Array(10).fill(0);
+    if (!report) return counts;
+    report.pairs.forEach((p) => {
+      const idx = Math.min(9, Math.floor(p.combinedScore * 10));
+      counts[idx] += 1;
     });
-    report.aiResults.forEach((a) => {
-      if (a.verdict !== "HUMAN_LIKELY") {
-        flaggedCandidateIds.add(a.candidateId);
-      }
-    });
-    report.clusters.forEach((c) => {
-      c.candidateIds.forEach((id) => flaggedCandidateIds.add(id));
-    });
+    return counts;
+  }, [report]);
 
-    const aiSignalCount = report.aiResults.filter((a) => a.verdict !== "HUMAN_LIKELY").length;
-
-    const priorityPairs = [...report.pairResults]
-      .filter((p) => p.verdict !== "CLEAR")
-      .sort((a, b) => b.similarityScore - a.similarityScore);
-
-    const priorityAi = [...report.aiResults]
-      .filter((a) => a.verdict !== "HUMAN_LIKELY")
-      .sort((a, b) => b.aiProbability - a.aiProbability);
-
-    return {
-      totalSubmissions: candidates.length,
-      totalComparisons: report.pairResults.length,
-      needingAttentionCount: flaggedCandidateIds.size,
-      clusterCount: report.clusters.length,
-      aiSignalCount,
-      priorityPairs,
-      priorityAi,
-      candidateMap,
-    };
-  }, [activePayload]);
-
-  if (reportLoading) {
-    return <ScreenSkeleton label="Loading cohort overview..." />;
+  if (loadingReport) {
+    return (
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+        <div className="skeleton-shimmer" style={{ height: 32, width: 220 }} />
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+            gap: 'var(--space-4)',
+          }}
+        >
+          {[0, 1, 2, 3].map((i) => (
+            <div key={i} className="skeleton-shimmer" style={{ height: 112 }} />
+          ))}
+        </div>
+        <div className="skeleton-shimmer" style={{ height: 260 }} />
+      </div>
+    );
   }
 
   if (reportError) {
+    return <ErrorStateView message={reportError} onRetry={refreshReport} />;
+  }
+
+  if (!report) {
     return (
-      <ErrorStatePanel
-        title="Could not load cohort overview"
-        message={reportError}
-        onRetry={loadDemoCohort}
-      />
+      <FadeUp>
+        <EmptyStateView
+          icon={<FolderCode size={20} />}
+          heading="No active submission analysis"
+          subtext="Upload a submission batch to begin analysis. Supported: .zip, .py, .java, .cpp, .c, .ts, .js, .go"
+          actionLabel="Upload submission batch"
+          onAction={() => navigate('/submissions')}
+        />
+      </FadeUp>
     );
   }
 
-  if (!activePayload || !metrics) {
-    return (
-      <EmptyCohortState
-        onLoadDemo={loadDemoCohort}
-        onGoUpload={() => navigate("/submissions?upload=1")}
-      />
-    );
-  }
+  const kpiCards = [
+    {
+      label: 'Total Submissions',
+      value: report.totalSubmissions,
+      icon: <FolderCode size={16} color="var(--text-secondary)" />,
+      route: '/submissions',
+      trendLabel: 'Current batch',
+    },
+    {
+      label: 'Collusion Detected',
+      value: report.flaggedCollusionCount,
+      icon: <ShieldAlert size={16} color="var(--risk-collusion)" />,
+      route: '/similarity',
+      trendLabel: 'High-risk pairs',
+    },
+    {
+      label: 'Suspicious Pairs',
+      value: report.suspiciousPairCount,
+      icon: <AlertTriangle size={16} color="var(--risk-suspicious)" />,
+      route: '/similarity',
+      trendLabel: 'Requires review',
+    },
+    {
+      label: 'Elevated AI Signals',
+      value: report.elevatedAiSignalCount,
+      icon: <Sparkles size={16} color="var(--risk-ai)" />,
+      route: '/ai-signals',
+      trendLabel: 'Heuristic flags',
+    },
+  ];
+
+  const maxBucket = Math.max(1, ...distributionBuckets);
 
   return (
-    <div style={{ display: "grid", gap: "20px" }}>
+    <FadeUp style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+      {/* Header */}
       <div
         style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          flexWrap: "wrap",
-          gap: "12px",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 'var(--space-4)',
         }}
       >
         <div>
-          <h1 style={{ margin: 0, fontSize: "18px", fontWeight: 600 }}>Cohort Triage Overview</h1>
-          <p className="text-secondary" style={{ margin: "2px 0 0 0", fontSize: "12px" }}>
-            {isPreviewMode
-              ? "Displaying a local sample cohort for interface preview. No account or database is being used."
-              : activePayload.source === "demo"
-              ? "Displaying sample cohort returned by GET /api/demo. Upload a batch to analyze live student submissions."
-              : `Displaying persisted report ${activePayload.reportId} (${metrics.totalComparisons} pairwise comparisons).`}
+          <h1 style={{ fontSize: 'var(--text-xl)' }}>Integrity Overview</h1>
+          <p className="mono" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+            Batch: {report.batchName} · ID: {report.reportId}
           </p>
-        </div>
-        <div style={{ display: "flex", gap: "8px" }}>
-          <button
-            type="button"
-            className="btn"
-            onClick={() => navigate("/reports")}
-          >
-            Export CSV / JSON
-          </button>
         </div>
       </div>
 
-      <section aria-label="Cohort key metrics" className="kpi-grid">
-        <button
-          type="button"
-          className="kpi-card"
-          onClick={() => navigate("/submissions")}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-            <span className="text-secondary" style={{ fontSize: "12px", fontWeight: 500 }}>
-              Submissions Analyzed
-            </span>
-            <span className="mono text-muted" style={{ fontSize: "11px" }}>
-              /submissions →
-            </span>
-          </div>
-          <div className="kpi-value">{metrics.totalSubmissions}</div>
-          <div className="mono text-muted" style={{ fontSize: "11px" }}>
-            {metrics.totalComparisons} pairwise comparisons
-          </div>
-        </button>
+      {/* 4 KPI Metric Cards */}
+      <StaggerContainer
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))',
+          gap: 'var(--space-4)',
+        }}
+      >
+        {kpiCards.map((card) => (
+          <StaggerItem key={card.label}>
+            <MotionButton
+              type="button"
+              onClick={() => navigate(card.route)}
+              className="zixie-card"
+              style={{
+                width: '100%',
+                padding: 'var(--space-4)',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'flex-start',
+                gap: 'var(--space-3)',
+                cursor: 'pointer',
+                textAlign: 'left',
+              }}
+              whileHover={{
+                borderColor: 'var(--accent)',
+                y: -2,
+              }}
+            >
+              <div
+                style={{
+                  width: '100%',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+                  {card.label}
+                </span>
+                {card.icon}
+              </div>
 
-        <button
-          type="button"
-          className="kpi-card"
-          onClick={() => navigate("/submissions?filter=attention")}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-            <span className="text-secondary" style={{ fontSize: "12px", fontWeight: 500 }}>
-              Candidates Needing Attention
-            </span>
-            <span className="mono text-muted" style={{ fontSize: "11px" }}>
-              ?filter=attention →
-            </span>
-          </div>
+              <div style={{ fontSize: 'var(--text-2xl)', fontWeight: 600 }}>
+                <CountUp value={card.value} />
+              </div>
+
+              <div
+                style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 'var(--space-1)',
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--text-muted)',
+                }}
+              >
+                <ArrowUpRight size={12} />
+                <span>{card.trendLabel}</span>
+              </div>
+            </MotionButton>
+          </StaggerItem>
+        ))}
+      </StaggerContainer>
+
+      {/* Dolos-style Pairwise Similarity Distribution + Top Flagged Pairs */}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+          gap: 'var(--space-4)',
+        }}
+      >
+        <div className="zixie-card" style={{ padding: 'var(--space-4)' }}>
+          <h2 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-1)' }}>
+            Pairwise Similarity Distribution
+          </h2>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)', marginBottom: 'var(--space-4)' }}>
+            Frequency of combined Winnowing + Greedy String Tiling scores across all candidate pairs
+          </p>
+
           <div
-            className="kpi-value"
             style={{
-              color:
-                metrics.needingAttentionCount > 0
-                  ? "var(--risk-suspicious-fg)"
-                  : "var(--text-primary)",
+              height: 160,
+              display: 'grid',
+              gridTemplateColumns: 'repeat(10, 1fr)',
+              alignItems: 'end',
+              gap: 'var(--space-2)',
+              paddingTop: 'var(--space-4)',
+              borderBottom: '1px solid var(--border-subtle)',
             }}
           >
-            {metrics.needingAttentionCount}
-          </div>
-          <div className="mono text-muted" style={{ fontSize: "11px" }}>
-            Flagged by pair score, cluster, or heuristic
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className="kpi-card"
-          onClick={() => navigate("/similarity")}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-            <span className="text-secondary" style={{ fontSize: "12px", fontWeight: 500 }}>
-              Collusion Clusters
-            </span>
-            <span className="mono text-muted" style={{ fontSize: "11px" }}>
-              /similarity →
-            </span>
-          </div>
-          <div
-            className="kpi-value"
-            style={{
-              color:
-                metrics.clusterCount > 0 ? "var(--risk-collusion-fg)" : "var(--text-primary)",
-            }}
-          >
-            {metrics.clusterCount}
-          </div>
-          <div className="mono text-muted" style={{ fontSize: "11px" }}>
-            Connected candidate subgraphs (join ≥ 0.70)
-          </div>
-        </button>
-
-        <button
-          type="button"
-          className="kpi-card"
-          onClick={() => navigate("/ai-detection")}
-        >
-          <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-            <span className="text-secondary" style={{ fontSize: "12px", fontWeight: 500 }}>
-              AI Signals
-            </span>
-            <span className="mono text-muted" style={{ fontSize: "11px" }}>
-              /ai-detection →
-            </span>
+            {distributionBuckets.map((count, i) => {
+              const heightPct = Math.max(4, Math.round((count / maxBucket) * 100));
+              const barColor =
+                i >= 8
+                  ? 'var(--risk-collusion)'
+                  : i >= 5
+                  ? 'var(--risk-suspicious)'
+                  : 'var(--accent)';
+              return (
+                <div
+                  key={i}
+                  style={{
+                    height: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'flex-end',
+                    alignItems: 'center',
+                    gap: 'var(--space-1)',
+                  }}
+                >
+                  <span className="mono" style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                    {count}
+                  </span>
+                  <div
+                    style={{
+                      width: '100%',
+                      height: `${heightPct}%`,
+                      backgroundColor: barColor,
+                      borderRadius: '2px 2px 0 0',
+                    }}
+                  />
+                </div>
+              );
+            })}
           </div>
           <div
-            className="kpi-value"
+            className="mono"
             style={{
-              color:
-                metrics.aiSignalCount > 0 ? "var(--risk-suspicious-fg)" : "var(--text-primary)",
+              display: 'flex',
+              justifyContent: 'space-between',
+              fontSize: 'var(--text-xs)',
+              color: 'var(--text-muted)',
+              marginTop: 'var(--space-2)',
             }}
           >
-            {metrics.aiSignalCount}
+            <span>0.00</span>
+            <span>0.50</span>
+            <span>1.00</span>
           </div>
-          <div className="mono text-muted" style={{ fontSize: "11px" }}>
-            Heuristic structural signals (non-ML)
-          </div>
-        </button>
-      </section>
-
-      <section className="panel" aria-label="Priority review queue">
-        <div className="panel-header">
-          <div>
-            <h2 className="panel-title">Priority Review Queue</h2>
-            <p className="text-muted" style={{ margin: "2px 0 0 0", fontSize: "11px" }}>
-              All flags are leads requiring human verification of source code and matched token tiles.
-            </p>
-          </div>
-          <span className="mono text-muted" style={{ fontSize: "11px" }}>
-            {metrics.priorityPairs.length} pair flags • {metrics.priorityAi.length} AI signal flags
-          </span>
         </div>
 
-        <div className="table-wrap">
-          <table className="data-table">
+        {/* Highest Priority Pairs Table */}
+        <div className="zixie-card" style={{ padding: 'var(--space-4)' }}>
+          <h2 style={{ fontSize: 'var(--text-base)', marginBottom: 'var(--space-3)' }}>
+            Highest Similarity Pairs
+          </h2>
+          <table className="zixie-table">
             <thead>
               <tr>
-                <th>Queue Type</th>
-                <th>Subject(s)</th>
-                <th>Primary Score</th>
-                <th>Evidence Breakdown</th>
-                <th>Status</th>
-                <th>Action</th>
+                <th>Candidate Pair</th>
+                <th>Score</th>
+                <th>Verdict</th>
               </tr>
             </thead>
             <tbody>
-              {metrics.priorityPairs.length === 0 && metrics.priorityAi.length === 0 && (
-                <tr>
-                  <td colSpan={6} style={{ textAlign: "center", padding: "24px" }}>
-                    No pairs or candidates crossed the review thresholds in this cohort.
+              {report.pairs.slice(0, 5).map((pair) => (
+                <tr key={pair.pairId}>
+                  <td>
+                    <span style={{ fontWeight: 500 }}>{pair.candidateAName}</span>
+                    <span style={{ color: 'var(--text-muted)' }}> ↔ </span>
+                    <span style={{ fontWeight: 500 }}>{pair.candidateBName}</span>
+                  </td>
+                  <td className="mono">{pair.combinedScore.toFixed(3)}</td>
+                  <td>
+                    <VerdictBadge verdict={pair.verdict} />
                   </td>
                 </tr>
-              )}
-
-              {metrics.priorityPairs.map((pair) => {
-                const candA = metrics.candidateMap.get(pair.candidateAId);
-                const candB = pair.candidateBId
-                  ? metrics.candidateMap.get(pair.candidateBId)
-                  : undefined;
-
-                return (
-                  <tr key={`pair-${pair.candidateAId}-${pair.candidateBId}`}> <td className="mono">PAIR SIMILARITY</td> <td> <strong>{candA?.candidateName || pair.candidateAId}</strong> <span className="text-muted"> vs </span> <strong>{candB?.candidateName || pair.candidateBId}</strong> <div className="mono text-muted" style={{ fontSize: "11px" }}> {candA?.filename} ↔ {candB?.filename} </div> </td> <td className="mono" style={{ fontWeight: 600 }}> {(pair.similarityScore * 100).toFixed(1)}% </td> <td className="mono text-secondary" style={{ fontSize: "11px" }}> Winnowing: {(pair.winnowingScore * 100).toFixed(1)}% • Tiling:{" "} {(pair.tilingScore * 100).toFixed(1)}% • {pair.matchedTiles.length} tiles </td> <td> <PairVerdictBadge verdict={pair.verdict} /> </td> <td> <button type="button" className="btn" onClick={() => navigate( `/similarity?pair=${encodeURIComponent(
-                              `${pair.candidateAId}:${pair.candidateBId}`
-                            )}`
-                          )
-                        }
-                      >
-                        Inspect Diff
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
-
-              {metrics.priorityAi.map((ai) => {
-                const cand = metrics.candidateMap.get(ai.candidateId);
-                return (
-                  <tr key={`ai-${ai.candidateId}`}> <td className="mono">AI HEURISTIC</td> <td> <strong>{cand?.candidateName || ai.candidateId}</strong> <div className="mono text-muted" style={{ fontSize: "11px" }}> {cand?.filename} </div> </td> <td className="mono" style={{ fontWeight: 600 }}> {(ai.aiProbability * 100).toFixed(0)}% heuristic </td> <td className="text-secondary" style={{ fontSize: "11px" }}> {ai.reasons[0] || "Structural heuristic indicator triggered"} </td> <td> <AiVerdictBadge verdict={ai.verdict} /> </td> <td> <button type="button" className="btn" onClick={() => navigate(`/submissions?candidate=${encodeURIComponent(ai.candidateId)}`)
-                        }
-                      >
-                        Open Dossier
-                      </button>
-                    </td>
-                  </tr>
-                );
-              })}
+              ))}
             </tbody>
           </table>
         </div>
-      </section>
-    </div>
+      </div>
+    </FadeUp>
   );
 };

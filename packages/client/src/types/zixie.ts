@@ -1,79 +1,78 @@
-export interface AuthUser {
-  id: string;
-  name: string;
-  email: string;
-}
+export type VerdictType = 'CLEAR' | 'SUSPICIOUS' | 'COLLUSION_DETECTED';
 
-export interface HealthResponse {
-  status: "healthy" | "degraded";
-  database?: string;
-  message?: string;
+export type AiHeuristicFlag =
+  | 'verboseDocstrings'
+  | 'uniformCommentDensity'
+  | 'canonicalNamingPattern'
+  | 'lowEntropyFormatting'
+  | 'standardAiBoilerplate';
+
+export interface MatchedTile {
+  id: string;
+  sourceStartLine: number;
+  sourceEndLine: number;
+  targetStartLine: number;
+  targetEndLine: number;
+  tokenCount: number;
+  snippet: string;
 }
 
 export interface CandidateSubmission {
   id: string;
   candidateName: string;
   filename: string;
-  language: string;
+  language: 'python' | 'java' | 'cpp' | 'c' | 'typescript' | 'javascript' | 'go';
+  submittedAt: string;
   sourceCode: string;
-  submittedAt?: string;
-}
-
-export interface MatchedTile {
-  sourceStartLine: number;
-  sourceEndLine: number;
-  targetStartLine: number;
-  targetEndLine: number;
-  tokenCount: number;
-}
-
-export type PairVerdict = "CLEAR" | "SUSPICIOUS" | "COLLUSION_DETECTED";
-
-export interface PairSimilarityResult {
-  candidateAId: string;
-  candidateBId: string;
-  similarityScore: number;
+  lineCount: number;
+  sha256: string;
+  clusterId: string | null;
+  maxSimilarityScore: number;
+  mostSimilarPartnerId: string | null;
+  mostSimilarPartnerName: string | null;
+  verdict: VerdictType;
   winnowingScore: number;
   tilingScore: number;
+  aiProbability: number; // 0 to 1
+  aiFlags: AiHeuristicFlag[];
+}
+
+export interface PairComparison {
+  pairId: string;
+  candidateAId: string;
+  candidateAName: string;
+  candidateBId: string;
+  candidateBName: string;
+  combinedScore: number; // 0 to 1
+  winnowingScore: number; // 0 to 1
+  tilingScore: number; // 0 to 1
+  verdict: VerdictType;
   matchedTiles: MatchedTile[];
-  verdict: PairVerdict;
-}
-
-export type AiVerdict = "HUMAN_LIKELY" | "SUSPICIOUS" | "AI_GENERATED_LIKELY";
-
-export interface AiSignalFlags {
-  verboseDocstrings: boolean;
-  uniformCommentDensity: boolean;
-  canonicalNamingPattern: boolean;
-  lowEntropyFormatting: boolean;
-  standardAiBoilerplate: boolean;
-}
-
-export interface AiDetectionResult {
-  candidateId: string;
-  aiProbability: number;
-  reasons: string[];
-  flags: AiSignalFlags;
-  verdict: AiVerdict;
-}
-
-export interface CollusionCluster {
-  id: string;
-  candidateIds: string[];
-  maxSimilarity: number;
-  averageSimilarity: number;
 }
 
 export interface AnalysisReport {
-  generatedAt?: string;
-  pairResults: PairSimilarityResult[];
-  aiResults: AiDetectionResult[];
-  clusters: CollusionCluster[];
+  reportId: string;
+  batchName: string;
+  createdAt: string;
+  ownerId: string;
+  totalSubmissions: number;
+  flaggedCollusionCount: number;
+  suspiciousPairCount: number;
+  elevatedAiSignalCount: number;
+  clusterCount: number;
+  candidates: CandidateSubmission[];
+  pairs: PairComparison[];
 }
 
-export interface BatchReportPayload {
-  reportId: string;
-  candidates: CandidateSubmission[];
-  report: AnalysisReport;
-  source: "live" | "demo";
+export interface UserSession {
+  id: string;
+  email: string;
+  name: string;
+  institution: string;
+}
+
+export interface HealthResponse {
+  status: 'ok' | 'degraded';
+  database: 'connected' | 'unavailable';
+  timestamp: string;
 }

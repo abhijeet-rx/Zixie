@@ -1,461 +1,280 @@
-import React, { useMemo, useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import { useWorkspace } from "../store/auth";
-import { apiClient } from "../api/client";
-import { MatchedTile, PairSimilarityResult } from "../types/zixie";
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { GitCompareArrows, Table, Grid } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { PairComparison } from '../types/zixie';
 import {
-  EmptyCohortState,
-  ErrorStatePanel,
-  PairVerdictBadge,
-  ScreenSkeleton,
-} from "../components/StatePrimitives";
+  FadeUp,
+  MatrixCellHover,
+  MotionButton,
+} from '../components/motion/primitives';
+import { EmptyStateView, ErrorStateView } from '../components/ui/StateViews';
+import { VerdictBadge } from '../components/ui/VerdictBadge';
+import { PairDetailDrawer } from '../components/similarity/PairDetailDrawer';
+
+/**
+ * Interpolate from --bg-elevated (score 0) to --risk-collusion (score 1) using HSL mix
+ */
+function interpolateHeatColor(score: number): string {
+  const clamped = Math.max(0, Math.min(1, score));
+  const saturation = Math.round(6 + clamped * 78);
+  const lightness = Math.round(14 + clamped * 42);
+  const alpha = (0.25 + clamped * 0.75).toFixed(2);
+  return `hsla(0, ${saturation}%, ${lightness}%, ${alpha})`;
+}
 
 export const SimilarityPage: React.FC = () => {
-  const { activePayload, reportLoading, reportError, loadDemoCohort } = useWorkspace();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const { report, loadingReport, reportError, refreshReport } = useApp();
   const navigate = useNavigate();
 
-  const [viewMode, setViewMode] = useState<"matrix" | "table">("matrix");
-  const [selectedPairKey, setSelectedPairKey] = useState<string | null>(searchParams.get("pair"));
-  const [activeTileIndex, setActiveTileIndex] = useState<number | null>(null);
-  const [livePairOverride, setLivePairOverride] = useState<PairSimilarityResult | null>(null);
+  const [viewMode, setViewMode] = useState<'matrix' | 'table'>('matrix');
+  const [hoveredPair, setHoveredPair] = useState<PairComparison | null>(null);
+  const [activePair, setActivePair] = useState<PairComparison | null>(null);
 
   const pairLookup = useMemo(() => {
-    const map = new Map<string, PairSimilarityResult>();
-    if (!activePayload) return map;
-    activePayload.report.pairResults.forEach((p) => {
+    const map = new Map<string, PairComparison>();
+    if (!report) return map;
+    report.pairs.forEach((p) => {
       map.set(`${p.candidateAId}:${p.candidateBId}`, p);
-      map.set(`${p.candidateBId}:${p.candidateAId}`, {
-        ...p,
-        candidateAId: p.candidateBId,
-        candidateBId: p.candidateAId,
-        matchedTiles: p.matchedTiles.map((t) => ({
-          sourceStartLine: t.targetStartLine,
-          sourceEndLine: t.targetEndLine,
-          targetStartLine: t.sourceStartLine,
-          targetEndLine: t.sourceEndLine,
-          tokenCount: t.tokenCount,
-        })),
-      });
+      map.set(`${p.candidateBId}:${p.candidateAId}`, p);
     });
     return map;
-  }, [activePayload]);
+  }, [report]);
 
-  useEffect(() => {
-    if (!activePayload) return;
-    const paramPair = searchParams.get("pair");
-    if (paramPair && pairLookup.has(paramPair)) {
-      setSelectedPairKey(paramPair);
-      return;
-    }
-    if (!selectedPairKey && activePayload.report.pairResults.length > 0) {
-      const top = [...activePayload.report.pairResults].sort(
-        (a, b) => b.similarityScore - a.similarityScore
-      )[0];
-      setSelectedPairKey(`${top.candidateAId}:${top.candidateBId}`);
-    }
-  }, [activePayload, pairLookup, searchParams, selectedPairKey]);
-
-  useEffect(() => {
-    setLivePairOverride(null);
-    setActiveTileIndex(null);
-    if (!activePayload || activePayload.source !== "live" || !selectedPairKey) return;
-    const [candA, candB] = selectedPairKey.split(":");
-    if (!candA || !candB) return;
-
-    let cancelled = false;
-    apiClient
-      .compareCandidates(activePayload.reportId, candA, candB)
-      .then((res) => {
-        if (!cancelled && res && typeof res.similarityScore === "number") {
-          setLivePairOverride(res);
-        }
-      })
-      .catch(() => {
-        // Fallback to in-memory report pair record
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [activePayload, selectedPairKey]);
-
-  if (reportLoading) {
-    return <ScreenSkeleton label="Loading similarity matrix..." />;
+  if (loadingReport) {
+    return <div className="skeleton-shimmer" style={{ height: 460 }} />;
   }
 
   if (reportError) {
+    return <ErrorStateView message={reportError} onRetry={refreshReport} />;
+  }
+
+  if (!report || report.candidates.length === 0) {
     return (
-      <ErrorStatePanel
-        title="Similarity analysis load error"
-        message={reportError}
-        onRetry={loadDemoCohort}
-      />
+      <FadeUp>
+        <EmptyStateView
+          icon={<GitCompareArrows size={20} />}
+          heading="No pairwise similarity matrix"
+          subtext="Run an analysis first to see pairwise similarity scores."
+          actionLabel="Go to Submissions"
+          onAction={() => navigate('/submissions')}
+        />
+      </FadeUp>
     );
   }
 
-  if (!activePayload) {
-    return (
-      <EmptyCohortState
-        onLoadDemo={loadDemoCohort}
-        onGoUpload={() => navigate("/submissions?upload=1")}
-      />
-    );
-  }
-
-  const { candidates, report } = activePayload;
-  const candidateMap = new Map(candidates.map((c) => [c.id, c]));
-  const selectedPair =
-    livePairOverride || (selectedPairKey ? pairLookup.get(selectedPairKey) ?? null : null);
-
-  const candA = selectedPair ? candidateMap.get(selectedPair.candidateAId) : undefined;
-  const candB = selectedPair ? candidateMap.get(selectedPair.candidateBId) : undefined;
-
-  const sortedPairs = [...report.pairResults].sort(
-    (a, b) => b.similarityScore - a.similarityScore
-  );
-
-  const selectPair = (aId: string, bId: string) => {
-    const key = `${aId}:${bId}`;
-    setSelectedPairKey(key);
-    setSearchParams({ pair: key });
-  };
-
-  const getLineHighlightClass = (
-    lineNumber: number,
-    tiles: MatchedTile[],
-    side: "source" | "target"
-  ): string => {
-    if (activeTileIndex !== null && tiles[activeTileIndex]) {
-      const active = tiles[activeTileIndex];
-      const start = side === "source" ? active.sourceStartLine : active.targetStartLine;
-      const end = side === "source" ? active.sourceEndLine : active.targetEndLine;
-      if (lineNumber >= start && lineNumber <= end) {
-        return "code-line--active-tile";
-      }
-    }
-    const inAnyTile = tiles.some((t) => {
-      const start = side === "source" ? t.sourceStartLine : t.targetStartLine;
-      const end = side === "source" ? t.sourceEndLine : t.targetEndLine;
-      return lineNumber >= start && lineNumber <= end;
-    });
-    return inAnyTile ? "code-line--matched" : "";
-  };
+  const candidates = report.candidates;
 
   return (
-    <div style={{ display: "grid", gap: "18px" }}>
+    <FadeUp style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
       <div
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          flexWrap: 'wrap',
+          gap: 'var(--space-4)',
         }}
       >
         <div>
-          <h1 style={{ margin: 0, fontSize: "18px", fontWeight: 600 }}>
-            Pairwise Token Similarity & Diff Inspector
-          </h1>
-          <p className="text-secondary" style={{ margin: "2px 0 0 0", fontSize: "12px" }}>
-            Combined score = <code className="mono">0.35 × Winnowing (k=8, w=6)</code> +{" "}
-            <code className="mono">0.65 × Greedy String Tiling (min run=5)</code>. Token-based
-            structural comparison.
+          <h1 style={{ fontSize: 'var(--text-xl)' }}>Pairwise Similarity Matrix</h1>
+          <p style={{ fontSize: 'var(--text-xs)', color: 'var(--text-secondary)' }}>
+            Select any cell to inspect Winnowing + Greedy String Tiling matched regions side-by-side.
           </p>
         </div>
 
-        <div style={{ display: "flex", gap: "6px" }} role="tablist" aria-label="Matrix or Table view">
-          <button
-            type="button"
-            role="tab"
-            aria-selected={viewMode === "matrix"}
-            className={`btn ${viewMode === "matrix" ? "btn--primary" : ""}`} onClick={() => setViewMode("matrix")} > N×N Score Matrix </button> <button type="button" role="tab" aria-selected={viewMode === "table"} className={`btn ${viewMode === "table" ? "btn--primary" : ""}`}
-            onClick={() => setViewMode("table")}
-          >
-            Accessible Pair Table ({report.pairResults.length})
-          </button>
-        </div>
+        {/* Accessibility Fallback Toggle: Matrix vs Sortable Table */}
+        <MotionButton
+          type="button"
+          onClick={() => setViewMode((v) => (v === 'matrix' ? 'table' : 'matrix'))}
+          className="zixie-button"
+          style={{
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: 'var(--space-2)',
+            padding: 'var(--space-2) var(--space-3)',
+            backgroundColor: 'var(--bg-elevated)',
+            color: 'var(--text-primary)',
+            cursor: 'pointer',
+          }}
+        >
+          {viewMode === 'matrix' ? <Table size={14} /> : <Grid size={14} />}
+          <span>{viewMode === 'matrix' ? 'Switch to accessible table view' : 'Switch to N×N matrix'}</span>
+        </MotionButton>
       </div>
 
-      <section className="panel" aria-label="Collusion cluster leads">
-        <div className="panel-header">
-          <h2 className="panel-title">Collusion Cluster Leads (Graph Join ≥ 0.70)</h2>
-          <span className="mono text-muted" style={{ fontSize: "11px" }}>
-            Clusters are leads for human review, not automated findings of misconduct
+      {/* Hover Tooltip Bar */}
+      <div
+        className="zixie-card"
+        style={{
+          padding: 'var(--space-3) var(--space-4)',
+          minHeight: 44,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+        }}
+      >
+        {hoveredPair ? (
+          <>
+            <div>
+              <strong>{hoveredPair.candidateAName}</strong>
+              <span style={{ color: 'var(--text-muted)' }}> vs </span>
+              <strong>{hoveredPair.candidateBName}</strong>
+            </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-3)' }}>
+              <span className="mono">Score: {hoveredPair.combinedScore.toFixed(3)}</span>
+              <VerdictBadge verdict={hoveredPair.verdict} />
+            </div>
+          </>
+        ) : (
+          <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+            Hover over a matrix cell to preview candidate pair score and verdict.
           </span>
-        </div>
-        <div className="panel-body">
-          {report.clusters.length === 0 ? (
-            <div className="text-secondary">
-              No connected candidate clusters crossed the 0.70 clustering threshold.
-            </div>
-          ) : (
-            <div style={{ display: "flex", flexWrap: "wrap", gap: "12px" }}>
-              {report.clusters.map((cluster) => (
-                <div
-                  key={cluster.id}
-                  style={{
-                    padding: "10px 14px",
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--risk-collusion-border)",
-                    borderRadius: "var(--radius-sm)",
-                    display: "grid",
-                    gap: "4px",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <span className="status-badge status-badge--collusion">
-                      [!] CLUSTER {cluster.id}
-                    </span>
-                    <span className="mono" style={{ fontSize: "12px", fontWeight: 600 }}>
-                      Peak {(cluster.maxSimilarity * 100).toFixed(1)}%
-                    </span>
-                  </div>
-                  <div className="mono text-secondary" style={{ fontSize: "11px" }}>
-                    Members:{" "}
-                    {cluster.candidateIds
-                      .map((id) => candidateMap.get(id)?.candidateName || id)
-                      .join(", ")}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
+        )}
+      </div>
 
-      {viewMode === "matrix" ? (
-        <section className="panel" aria-label="Pairwise similarity matrix">
-          <div className="panel-header">
-            <h2 className="panel-title">
-              N×N Pairwise Matrix ({candidates.length} × {candidates.length})
-            </h2>
-            <div className="mono text-muted" style={{ fontSize: "11px" }}>
-              Legend: [C] ≥ 80% Collusion Flag • [S] 55–79% Suspicious • [·] &lt; 55% Clear
-            </div>
-          </div>
-          <div className="panel-body table-wrap">
-            <table className="matrix-grid" aria-label="Pairwise similarity scores">
-              <thead>
-                <tr>
-                  <th className="matrix-header-cell">Candidate</th>
-                  {candidates.map((c) => (
-                    <th key={c.id} className="matrix-header-cell" title={c.candidateName}>
-                      {c.candidateName.split(" ")[0]}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {candidates.map((rowCand) => (
-                  <tr key={rowCand.id}>
-                    <th
-                      scope="row"
-                      className="matrix-header-cell"
-                      style={{ textAlign: "left" }}
-                      title={rowCand.candidateName}
-                    >
-                      {rowCand.candidateName}
-                    </th>
-                    {candidates.map((colCand) => {
-                      if (rowCand.id === colCand.id) {
-                        return (
-                          <td
-                            key={colCand.id}
-                            style={{
-                              background: "var(--bg-base)",
-                              color: "var(--text-muted)",
-                              width: "68px",
-                              height: "36px",
-                            }}
-                          >
-                            —
-                          </td>
-                        );
-                      }
-                      const pair = pairLookup.get(`${rowCand.id}:${colCand.id}`);
-                      if (!pair) {
-                        return <td key={colCand.id}>N/A</td>;
-                      }
-                      const isSelected =
-                        selectedPairKey === `${rowCand.id}:${colCand.id}` ||
-                        selectedPairKey === `${colCand.id}:${rowCand.id}`;
-
-                      const statusClass =
-                        pair.verdict === "COLLUSION_DETECTED"
-                          ? "matrix-cell-btn--collusion"
-                          : pair.verdict === "SUSPICIOUS"
-                          ? "matrix-cell-btn--suspicious"
-                          : "matrix-cell-btn--clear";
-
-                      const tagSymbol =
-                        pair.verdict === "COLLUSION_DETECTED"
-                          ? "[C]"
-                          : pair.verdict === "SUSPICIOUS"
-                          ? "[S]"
-                          : "[·]";
-
-                      return (
-                        <td key={colCand.id}>
-                          <button
-                            type="button"
-                            className={`matrix-cell-btn ${statusClass}${
-                              isSelected ? "matrix-cell-btn--selected" : ""
-                            }`}
-                            onClick={() => selectPair(rowCand.id, colCand.id)}
-                            title={`${rowCand.candidateName} vs${colCand.candidateName}: ${( pair.similarityScore * 100 ).toFixed(1)}% (${pair.verdict}) — Winnowing ${( pair.winnowingScore * 100 ).toFixed(1)}%, Tiling${(pair.tilingScore * 100).toFixed(1)}%`}
-                            aria-label={`Compare ${rowCand.candidateName} and${
-                              colCand.candidateName
-                            }, score ${(pair.similarityScore * 100).toFixed(1)} percent, verdict${
-                              pair.verdict
-                            }`}
-                          >
-                            <span>{(pair.similarityScore * 100).toFixed(0)}%</span>
-                            <span style={{ fontSize: "9px" }}>{tagSymbol}</span>
-                          </button>
-                        </td>
-                      );
-                    })}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      ) : (
-        <section className="panel" aria-label="Accessible pairwise comparisons table">
-          <div className="panel-header">
-            <h2 className="panel-title">All Pairwise Comparisons</h2>
-          </div>
-          <div className="table-wrap">
-            <table className="data-table">
-              <thead>
-                <tr>
-                  <th>Candidate A</th>
-                  <th>Candidate B</th>
-                  <th>Combined</th>
-                  <th>Winnowing (35%)</th>
-                  <th>Greedy String Tiling (65%)</th>
-                  <th>Matched Tiles</th>
-                  <th>Verdict</th>
-                  <th>Inspect</th>
-                </tr>
-              </thead>
-              <tbody>
-                {sortedPairs.map((pair) => {
-                  const a = candidateMap.get(pair.candidateAId);
-                  const b = candidateMap.get(pair.candidateBId);
-                  return (
-                    <tr key={`${pair.candidateAId}:${pair.candidateBId}`}>
-                      <td>{a?.candidateName || pair.candidateAId}</td>
-                      <td>{b?.candidateName || pair.candidateBId}</td>
-                      <td className="mono" style={{ fontWeight: 600 }}>
-                        {(pair.similarityScore * 100).toFixed(1)}%
-                      </td>
-                      <td className="mono">{(pair.winnowingScore * 100).toFixed(1)}%</td>
-                      <td className="mono">{(pair.tilingScore * 100).toFixed(1)}%</td>
-                      <td className="mono">{pair.matchedTiles.length}</td>
-                      <td>
-                        <PairVerdictBadge verdict={pair.verdict} />
-                      </td>
-                      <td>
-                        <button
-                          type="button"
-                          className="btn"
-                          onClick={() => selectPair(pair.candidateAId, pair.candidateBId)}
-                        >
-                          Select Pair
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
-        </section>
-      )}
-
-      {selectedPair && (
-        <section className="panel" aria-label="Selected pair comparison detail">
-          <div className="panel-header" style={{ flexWrap: "wrap" }}>
-            <div>
-              <h2 className="panel-title" style={{ fontSize: "15px" }}>
-                Pair Evidence: {candA?.candidateName || selectedPair.candidateAId} ↔{" "}
-                {candB?.candidateName || selectedPair.candidateBId}
-              </h2>
-              <div className="mono text-secondary" style={{ fontSize: "11px", marginTop: "2px" }}>
-                Combined: {(selectedPair.similarityScore * 100).toFixed(1)}% • Winnowing:{" "}
-                {(selectedPair.winnowingScore * 100).toFixed(1)}% • Greedy String Tiling:{" "}
-                {(selectedPair.tilingScore * 100).toFixed(1)}% •{" "}
-                {selectedPair.matchedTiles.length} matched token tiles
+      {viewMode === 'matrix' ? (
+        <div className="zixie-card" style={{ padding: 'var(--space-4)', overflowX: 'auto' }}>
+          <div
+            style={{
+              display: 'grid',
+              gridTemplateColumns: `120px repeat(${candidates.length}, 44px)`,
+              gap: 4,
+              alignItems: 'center',
+            }}
+          >
+            <div />
+            {candidates.map((col) => (
+              <div
+                key={col.id}
+                title={col.candidateName}
+                className="mono"
+                style={{
+                  fontSize: 'var(--text-xs)',
+                  color: 'var(--text-secondary)',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                  whiteSpace: 'nowrap',
+                  textAlign: 'center',
+                }}
+              >
+                {col.candidateName.slice(0, 6)}
               </div>
-            </div>
-            <PairVerdictBadge verdict={selectedPair.verdict} />
-          </div>
+            ))}
 
-          <div className="panel-body" style={{ display: "grid", gap: "14px" }}>
-            <div>
-              <div className="mono text-muted" style={{ fontSize: "11px", marginBottom: "6px" }}>
-                MATCHED TOKEN TILES (CLICK TO HIGHLIGHT SPECIFIC REGION)
-              </div>
-              {selectedPair.matchedTiles.length === 0 ? (
-                <div className="text-secondary">
-                  No contiguous token runs met the minimum run-length threshold (5 tokens).
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexWrap: "wrap", gap: "6px" }}>
-                  <button
-                    type="button"
-                    className={`btn ${activeTileIndex === null ? "btn--primary" : ""}`} style={{ height: "26px", fontSize: "11px" }} onClick={() => setActiveTileIndex(null)} > All Tiles ({selectedPair.matchedTiles.length}) </button> {selectedPair.matchedTiles.map((tile, idx) => ( <button key={`${tile.sourceStartLine}-${tile.targetStartLine}-${idx}`}
-                      type="button"
-                      className={`btn mono ${activeTileIndex === idx ? "btn--primary" : ""}`}
-                      style={{ height: "26px", fontSize: "11px" }}
-                      onClick={() => setActiveTileIndex(idx)}
-                    >
-                      Tile #{idx + 1}: L{tile.sourceStartLine}–{tile.sourceEndLine} ↔ L
-                      {tile.targetStartLine}–{tile.targetEndLine} ({tile.tokenCount} tok)
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="diff-grid">
-              <div>
+            {candidates.map((row) => (
+              <React.Fragment key={row.id}>
                 <div
+                  title={row.candidateName}
                   className="mono"
                   style={{
-                    padding: "6px 10px",
-                    background: "var(--bg-elevated)",
-                    border: "1px solid var(--border-subtle)",
-                    borderBottom: "none",
-                    fontSize: "11px",
-                    fontWeight: 600,
+                    fontSize: 'var(--text-xs)',
+                    color: 'var(--text-secondary)',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                    whiteSpace: 'nowrap',
+                    paddingRight: 'var(--space-2)',
                   }}
                 >
-                  A: {candA?.candidateName} ({candA?.filename})
+                  {row.candidateName}
                 </div>
-                <div className="code-viewer">
-                  {(candA?.sourceCode || "").split("\n").map((line, i) => {
-                    const lineNumber = i + 1;
-                    const hl = getLineHighlightClass(
-                      lineNumber,
-                      selectedPair.matchedTiles,
-                      "source"
-                    );
+
+                {candidates.map((col) => {
+                  if (row.id === col.id) {
                     return (
-                      <div key={lineNumber} className={`code-line ${hl}`}> <span className="code-gutter">{lineNumber}</span> <span>{line || " "}</span> </div> ); })} </div> </div>  <div> <div className="mono" style={{ padding: "6px 10px", background: "var(--bg-elevated)", border: "1px solid var(--border-subtle)", borderBottom: "none", fontSize: "11px", fontWeight: 600, }} > B: {candB?.candidateName} ({candB?.filename}) </div> <div className="code-viewer"> {(candB?.sourceCode || "").split("\n").map((line, i) => { const lineNumber = i + 1; const hl = getLineHighlightClass( lineNumber, selectedPair.matchedTiles, "target" ); return ( <div key={lineNumber} className={`code-line ${hl}`}>
-                        <span className="code-gutter">{lineNumber}</span>
-                        <span>{line || " "}</span>
+                      <div
+                        key={`${row.id}-${col.id}`}
+                        title={`${row.candidateName} (Self-comparison not applicable)`}
+                        style={{
+                          width: 44,
+                          height: 36,
+                          backgroundColor: 'var(--bg-base)',
+                          border: '1px dashed var(--border-subtle)',
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'center',
+                          fontSize: 'var(--text-xs)',
+                          color: 'var(--text-muted)',
+                        }}
+                      >
+                        —
                       </div>
                     );
-                  })}
-                </div>
-              </div>
-            </div>
+                  }
+
+                  const pair = pairLookup.get(`${row.id}:${col.id}`) || null;
+                  const score = pair ? pair.combinedScore : 0;
+
+                  return (
+                    <MatrixCellHover
+                      key={`${row.id}-${col.id}`}
+                      onMouseEnter={() => setHoveredPair(pair)}
+                      onMouseLeave={() => setHoveredPair(null)}
+                      onClick={() => pair && setActivePair(pair)}
+                      aria-label={`${row.candidateName} and ${col.candidateName}: ${score.toFixed(
+                        3
+                      )}`}
+                      style={{
+                        width: 44,
+                        height: 36,
+                        backgroundColor: interpolateHeatColor(score),
+                        border: '1px solid var(--border)',
+                        borderRadius: 'var(--radius-control)',
+                        color: 'var(--text-primary)',
+                        fontFamily: 'var(--font-mono)',
+                        fontSize: 'var(--text-xs)',
+                        cursor: pair ? 'pointer' : 'default',
+                      }}
+                    >
+                      {score.toFixed(2)}
+                    </MatrixCellHover>
+                  );
+                })}
+              </React.Fragment>
+            ))}
           </div>
-        </section>
+        </div>
+      ) : (
+        <div className="zixie-card" style={{ overflowX: 'auto' }}>
+          <table className="zixie-table">
+            <thead>
+              <tr>
+                <th>Candidate A</th>
+                <th>Candidate B</th>
+                <th>Combined</th>
+                <th>Winnowing</th>
+                <th>Tiling</th>
+                <th>Verdict</th>
+              </tr>
+            </thead>
+            <tbody>
+              {report.pairs.map((p) => (
+                <tr
+                  key={p.pairId}
+                  onClick={() => setActivePair(p)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <td>{p.candidateAName}</td>
+                  <td>{p.candidateBName}</td>
+                  <td className="mono">{p.combinedScore.toFixed(3)}</td>
+                  <td className="mono">{p.winnowingScore.toFixed(3)}</td>
+                  <td className="mono">{p.tilingScore.toFixed(3)}</td>
+                  <td>
+                    <VerdictBadge verdict={p.verdict} />
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
       )}
-    </div>
+
+      <PairDetailDrawer
+        pair={activePair}
+        candidateA={candidates.find((c) => c.id === activePair?.candidateAId)}
+        candidateB={candidates.find((c) => c.id === activePair?.candidateBId)}
+        onClose={() => setActivePair(null)}
+      />
+    </FadeUp>
   );
 };

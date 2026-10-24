@@ -21,11 +21,7 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
   fastify.get('/demo', { preHandler: requireAuth }, async (request) => {
     const report = analyzeCandidateCohort(DEMO_COHORT);
     const reportId = await reportStore.save(request.user.sub, DEMO_COHORT, report);
-    return {
-      reportId,
-      candidates: DEMO_COHORT,
-      report,
-    };
+    return reportStore.get(reportId, request.user.sub);
   });
 
   // 3. Batch Analysis (Supports JSON or Multipart Upload / Zip)
@@ -37,6 +33,8 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
 
     if (contentType.includes('multipart/form-data')) {
       const parts = request.parts();
+      let totalSourceBytes = 0;
+      const maxSourceBytes = 4 * 1024 * 1024;
 
       for await (const part of parts) {
         if (part.type === 'file') {
@@ -54,6 +52,10 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
                 const validExts = ['js', 'ts', 'jsx', 'tsx', 'cpp', 'cc', 'c', 'java', 'py'];
                 if (validExts.includes(ext)) {
                   const content = entry.getData().toString('utf8');
+                  totalSourceBytes += Buffer.byteLength(content, 'utf8');
+                  if (totalSourceBytes > maxSourceBytes) {
+                    return reply.status(413).send({ error: 'Submission source exceeds the 4 MiB deployment upload limit.' });
+                  }
                   const candName = entry.name.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
 
                   candidates.push({
@@ -69,6 +71,10 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
           } else {
             // Single source code file upload
             const content = buffer.toString('utf8');
+            totalSourceBytes += Buffer.byteLength(content, 'utf8');
+            if (totalSourceBytes > maxSourceBytes) {
+              return reply.status(413).send({ error: 'Submission source exceeds the 4 MiB deployment upload limit.' });
+            }
             const ext = filename.split('.').pop()?.toLowerCase() || 'js';
             const candName = filename.replace(/\.[^/.]+$/, '').replace(/[_-]/g, ' ');
 
@@ -113,15 +119,17 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
 
     const report = analyzeCandidateCohort(candidates, options);
     const reportId = await reportStore.save(request.user.sub, candidates, report);
-
-    return {
-      reportId,
-      candidates,
-      report,
-    };
+    return reportStore.get(reportId, request.user.sub);
   });
 
-  // 4. Get Report by ID
+  // 4. Get the most recent report for the signed-in owner.
+  fastify.get('/reports/latest', { preHandler: requireAuth }, async (request, reply) => {
+    const session = await reportStore.getLatest(request.user.sub);
+    if (!session) return reply.status(404).send({ error: 'No reports found' });
+    return session;
+  });
+
+  // 5. Get Report by ID
   fastify.get('/reports/:id', { preHandler: requireAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const session = await reportStore.get(id, request.user.sub);
@@ -133,7 +141,7 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
     return session;
   });
 
-  // 5. Compare Two Candidates in a Report (For Side-by-Side Diff)
+  // 6. Compare Two Candidates in a Report (For Side-by-Side Diff)
   fastify.get('/reports/:id/compare', { preHandler: requireAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
     const { candA: candAId, candB: candBId } = request.query as {

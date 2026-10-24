@@ -1,4 +1,4 @@
-import { model, models, Schema } from 'mongoose';
+import mongoose from 'mongoose';
 
 export interface UserRecord {
   name: string;
@@ -8,10 +8,12 @@ export interface UserRecord {
   updatedAt: Date;
 }
 
-const userSchema = new Schema<UserRecord>({
+const userSchema = new mongoose.Schema<UserRecord>({
   name: { type: String, required: true, trim: true, minlength: 1, maxlength: 80 },
   email: { type: String, required: true, lowercase: true, trim: true, unique: true, index: true },
   passwordHash: { type: String, required: true, select: false },
 }, { timestamps: true, versionKey: false });
 
-export const UserModel = models.User || model<UserRecord>('User', userSchema);
+export const UserModel: mongoose.Model<UserRecord> =
+  (mongoose.models.User as mongoose.Model<UserRecord> | undefined)
+  ?? mongoose.model<UserRecord>('User', userSchema);

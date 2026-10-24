@@ -1,134 +1,191 @@
-import React, { useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useWorkspace } from "../store/auth";
-import {
-  AiVerdictBadge,
-  EmptyCohortState,
-  ErrorStatePanel,
-  ScreenSkeleton,
-} from "../components/StatePrimitives";
-import { AiSignalFlags } from "../types/zixie";
+import React, { useState, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Info, Sparkles, ArrowUpDown } from 'lucide-react';
+import { useApp } from '../context/AppContext';
+import { AiHeuristicFlag } from '../types/zixie';
+import { FadeUp, MotionButton } from '../components/motion/primitives';
+import { EmptyStateView, ErrorStateView } from '../components/ui/StateViews';
+import { VerdictBadge } from '../components/ui/VerdictBadge';
 
-const READABLE_FLAG_DEFINITIONS: Array<{
-  key: keyof AiSignalFlags;
-  label: string;
-  description: string;
-}> = [
-  {
-    key: "verboseDocstrings",
-    label: "Verbose Docstrings",
-    description: "Multi-line or restating parameter docstrings disproportionate to function size",
-  },
-  {
-    key: "uniformCommentDensity",
-    label: "Uniform Comment Density",
-    description: "Step-by-step inline comments evenly distributed across basic control flow",
-  },
-  {
-    key: "canonicalNamingPattern",
-    label: "Canonical Identifier Naming",
-    description: "Textbook camelCase/snake_case identifiers matching common tutorial solutions",
-  },
-  {
-    key: "lowEntropyFormatting",
-    label: "Low-Entropy Formatting",
-    description: "Zero whitespace variance and uniform block spacing throughout the file",
-  },
-  {
-    key: "standardAiBoilerplate",
-    label: "Standard Template Boilerplate",
-    description: "Includes canonical guard clauses or example harness patterns",
-  },
-];
+const READABLE_FLAG_LABELS: Record<AiHeuristicFlag, string> = {
+  verboseDocstrings: 'Verbose Docstrings',
+  uniformCommentDensity: 'Uniform Comment Density',
+  canonicalNamingPattern: 'Canonical Naming Pattern',
+  lowEntropyFormatting: 'Low-Entropy Formatting',
+  standardAiBoilerplate: 'Standard AI Boilerplate',
+};
 
 export const AiSignalsPage: React.FC = () => {
-  const { activePayload, reportLoading, reportError, loadDemoCohort } = useWorkspace();
+  const { report, loadingReport, reportError, refreshReport } = useApp();
   const navigate = useNavigate();
+  const [sortAsc, setSortAsc] = useState(false);
 
-  const [statusFilter, setStatusFilter] = useState<"ALL" | "FLAGGED" | "HUMAN_LIKELY">("ALL");
+  const sortedCandidates = useMemo(() => {
+    if (!report) return [];
+    return [...report.candidates].sort((a, b) =>
+      sortAsc ? a.aiProbability - b.aiProbability : b.aiProbability - a.aiProbability
+    );
+  }, [report, sortAsc]);
 
-  const sortedSignals = useMemo(() => {
-    if (!activePayload) return [];
-    const candidateMap = new Map(activePayload.candidates.map((c) => [c.id, c]));
-
-    return [...activePayload.report.aiResults]
-      .filter((item) => {
-        if (statusFilter === "FLAGGED") return item.verdict !== "HUMAN_LIKELY";
-        if (statusFilter === "HUMAN_LIKELY") return item.verdict === "HUMAN_LIKELY";
-        return true;
-      })
-      .sort((a, b) => b.aiProbability - a.aiProbability)
-      .map((signal) => ({
-        signal,
-        candidate: candidateMap.get(signal.candidateId),
-      }));
-  }, [activePayload, statusFilter]);
-
-  if (reportLoading) {
-    return <ScreenSkeleton label="Loading heuristic AI signals..." />;
+  if (loadingReport) {
+    return <div className="skeleton-shimmer" style={{ height: 420 }} />;
   }
 
   if (reportError) {
-    return (
-      <ErrorStatePanel
-        title="Could not load heuristic AI signals"
-        message={reportError}
-        onRetry={loadDemoCohort}
-      />
-    );
+    return <ErrorStateView message={reportError} onRetry={refreshReport} />;
   }
 
-  if (!activePayload) {
+  if (!report || report.candidates.length === 0) {
     return (
-      <EmptyCohortState
-        onLoadDemo={loadDemoCohort}
-        onGoUpload={() => navigate("/submissions?upload=1")}
-      />
+      <FadeUp>
+        <EmptyStateView
+          icon={<Sparkles size={20} />}
+          heading="No AI heuristic signals available"
+          subtext="Upload and analyze a submission batch first to inspect code pattern heuristics."
+          actionLabel="Upload submissions"
+          onAction={() => navigate('/submissions')}
+        />
+      </FadeUp>
     );
   }
 
   return (
-    <div style={{ display: "grid", gap: "16px" }}>
+    <FadeUp style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-6)' }}>
+      <div>
+        <h1 style={{ fontSize: 'var(--text-xl)' }}>AI Heuristic Signals</h1>
+      </div>
+
+      {/* Prominent Info Disclaimer Banner */}
       <div
+        role="note"
         style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          flexWrap: "wrap",
-          gap: "12px",
+          display: 'flex',
+          alignItems: 'center',
+          gap: 'var(--space-3)',
+          padding: 'var(--space-3) var(--space-4)',
+          backgroundColor: 'rgba(99, 102, 241, 0.1)',
+          border: '1px solid var(--accent)',
+          borderRadius: 'var(--radius-card)',
+          color: 'var(--text-primary)',
+          fontSize: 'var(--text-sm)',
         }}
       >
-        <div>
-          <h1 style={{ margin: 0, fontSize: "18px", fontWeight: 600 }}>
-            Heuristic AI Writing Signals
-          </h1>
-          <p className="text-secondary" style={{ margin: "2px 0 0 0", fontSize: "12px" }}>
-            Static code style indicators sorted by heuristic probability.
-          </p>
-        </div>
+        <Info size={18} color="var(--accent)" style={{ flexShrink: 0 }} />
+        <span>
+          These are heuristic signals based on code patterns, not a trained AI model. Scores
+          indicate statistical likelihood only and are not proof of misconduct.
+        </span>
+      </div>
 
-        <div style={{ display: "flex", gap: "6px" }} role="tablist" aria-label="Filter AI signals">
-          {(["ALL", "FLAGGED", "HUMAN_LIKELY"] as const).map((mode) => (
-            <button
-              key={mode}
-              type="button"
-              role="tab"
-              aria-selected={statusFilter === mode}
-              className={`btn ${statusFilter === mode ? "btn--primary" : ""}`} onClick={() => setStatusFilter(mode)} > {mode === "ALL" ? "All Candidates" : mode === "FLAGGED" ? "Flagged Only" : "Human Likely"} </button> ))} </div> </div>  <div className="panel" style={{ borderLeft: "3px solid var(--accent)", background: "var(--bg-surface)", }} > <div className="panel-body"> <div className="mono" style={{ fontWeight: 600, marginBottom: "4px" }}> [METHODOLOGY DISCLOSURE: DETERMINISTIC HEURISTIC — NOT A TRAINED ML MODEL] </div> <p className="text-secondary" style={{ margin: 0 }}> These scores are computed by rule-based heuristics in <code className="mono">packages/engine</code>{" "} that inspect comment density, docstring verbosity, identifier regularity, and formatting entropy. Well-formatted human code or IDE auto-formatters can trigger these indicators. Use these signals solely as context during an academic review conversation — never as standalone proof. </p> </div> </div>  <section className="panel" aria-label="Candidate heuristic AI signal list"> <div className="table-wrap"> <table className="data-table"> <thead> <tr> <th>Candidate</th> <th>Heuristic Score</th> <th>Signal Status</th> <th>Triggered Indicator Flags</th> <th>Heuristic Reasons</th> <th>Dossier</th> </tr> </thead> <tbody> {sortedSignals.length === 0 ? ( <tr> <td colSpan={6} style={{ textAlign: "center", padding: "24px" }}> No records match the selected filter. </td> </tr> ) : ( sortedSignals.map(({ signal, candidate }) => { const activeFlags = READABLE_FLAG_DEFINITIONS.filter( (def) => signal.flags && signal.flags[def.key] );  return ( <tr key={signal.candidateId}> <td> <strong>{candidate?.candidateName || signal.candidateId}</strong> <div className="mono text-muted" style={{ fontSize: "11px" }}> {candidate?.filename} ({candidate?.language}) </div> </td> <td className="mono" style={{ fontWeight: 600, fontSize: "13px" }}> {(signal.aiProbability * 100).toFixed(0)}% </td> <td> <AiVerdictBadge verdict={signal.verdict} /> </td> <td> {activeFlags.length === 0 ? ( <span className="text-muted">None triggered</span> ) : ( <div style={{ display: "flex", flexWrap: "wrap", gap: "4px" }}> {activeFlags.map((flag) => ( <span key={flag.key} className="status-badge status-badge--neutral" title={flag.description} > {flag.label} </span> ))} </div> )} </td> <td style={{ maxWidth: "360px" }}> {signal.reasons.length === 0 ? ( <span className="text-muted">No anomalous patterns noted.</span> ) : ( <ul style={{ margin: 0, paddingLeft: "16px", fontSize: "11px" }}> {signal.reasons.map((reason, idx) => ( <li key={idx}>{reason}</li> ))} </ul> )} </td> <td> <button type="button" className="btn" onClick={() => navigate( `/submissions?candidate=${encodeURIComponent(signal.candidateId)}`
-                            )
-                          }
-                        >
-                          Inspect Code
-                        </button>
-                      </td>
-                    </tr>
-                  );
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-      </section>
-    </div>
+      <div className="zixie-card" style={{ overflowX: 'auto' }}>
+        <table className="zixie-table">
+          <thead>
+            <tr>
+              <th>Candidate</th>
+              <th>
+                <MotionButton
+                  type="button"
+                  onClick={() => setSortAsc((s) => !s)}
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    color: 'var(--text-secondary)',
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 4,
+                    cursor: 'pointer',
+                    fontSize: 'var(--text-xs)',
+                    fontWeight: 500,
+                    textTransform: 'uppercase',
+                  }}
+                >
+                  <span>Heuristic Probability</span>
+                  <ArrowUpDown size={12} />
+                </MotionButton>
+              </th>
+              <th>Verdict</th>
+              <th>Pattern Signals</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sortedCandidates.map((c) => {
+              const pct = Math.round(c.aiProbability * 100);
+              const barColor =
+                pct >= 75
+                  ? 'var(--risk-ai)'
+                  : pct >= 45
+                  ? 'var(--risk-suspicious)'
+                  : 'var(--risk-clear)';
+
+              return (
+                <tr key={c.id}>
+                  <td>
+                    <div style={{ fontWeight: 500 }}>{c.candidateName}</div>
+                    <div
+                      className="mono"
+                      style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}
+                    >
+                      {c.filename}
+                    </div>
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--space-2)' }}>
+                      <div
+                        style={{
+                          width: 120,
+                          height: 6,
+                          backgroundColor: 'var(--bg-elevated)',
+                          borderRadius: 3,
+                          overflow: 'hidden',
+                        }}
+                      >
+                        <div
+                          style={{
+                            width: `${pct}%`,
+                            height: '100%',
+                            backgroundColor: barColor,
+                          }}
+                        />
+                      </div>
+                      <span className="mono" style={{ fontSize: 'var(--text-xs)' }}>
+                        {pct}%
+                      </span>
+                    </div>
+                  </td>
+                  <td>
+                    <VerdictBadge verdict={c.verdict} />
+                  </td>
+                  <td>
+                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: 'var(--space-1)' }}>
+                      {c.aiFlags.length === 0 ? (
+                        <span style={{ fontSize: 'var(--text-xs)', color: 'var(--text-muted)' }}>
+                          No elevated flags
+                        </span>
+                      ) : (
+                        c.aiFlags.map((flag) => (
+                          <span
+                            key={flag}
+                            style={{
+                              padding: '2px var(--space-2)',
+                              fontSize: 'var(--text-xs)',
+                              backgroundColor: 'rgba(168, 85, 247, 0.12)',
+                              border: '1px solid rgba(168, 85, 247, 0.35)',
+                              color: 'var(--risk-ai)',
+                              borderRadius: 'var(--radius-control)',
+                            }}
+                          >
+                            {READABLE_FLAG_LABELS[flag] || flag}
+                          </span>
+                        ))
+                      )}
+                    </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </FadeUp>
   );
 };

@@ -28,6 +28,18 @@ class ReportStore {
       report: stored.report,
     };
   }
+
+  async getLatest(ownerId: string): Promise<StoredSession | null> {
+    const stored = await ReportModel.findOne({ ownerId }).sort({ createdAt: -1 }).lean().exec();
+    if (!stored) return null;
+    return {
+      reportId: stored.reportId,
+      ownerId: stored.ownerId,
+      createdAt: stored.createdAt,
+      candidates: stored.candidates,
+      report: stored.report,
+    };
+  }
 }
 
 export const reportStore = new ReportStore();
