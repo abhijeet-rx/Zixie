@@ -30,7 +30,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   const [authChecked, setAuthChecked] = useState(import.meta.env.DEV);
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
     const current = document.documentElement.getAttribute('data-theme');
-    return current === 'light' ? 'light' : 'dark';
+    return current === 'dark' ? 'dark' : 'light';
   });
   const [dbDegraded, setDbDegraded] = useState(false);
   const [report, setReport] = useState<AnalysisReport | null>(null);

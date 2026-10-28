@@ -208,6 +208,12 @@ export const api = {
     }
   },
 
+  deleteAllSubmissions: async (): Promise<{ deletedCount: number }> => {
+    const result = await request<{ deletedCount: number }>('/api/reports', { method: 'DELETE' });
+    window.sessionStorage.removeItem(latestReportKey);
+    return result;
+  },
+
   uploadSubmissions: (files: File[], onProgress?: (percent: number) => void): Promise<{ report: AnalysisReport }> =>
     new Promise((resolve, reject) => {
       const xhr = new XMLHttpRequest();

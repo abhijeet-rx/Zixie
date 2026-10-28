@@ -40,6 +40,11 @@ class ReportStore {
       report: stored.report,
     };
   }
+
+  async deleteAll(ownerId: string): Promise<number> {
+    const result = await ReportModel.deleteMany({ ownerId }).exec();
+    return result.deletedCount;
+  }
 }
 
 export const reportStore = new ReportStore();

@@ -215,6 +215,33 @@ export const SubmissionsPage: React.FC = () => {
     }
   };
 
+  const deleteAllSubmissions = async () => {
+    if (!report || uploadProgress !== null) return;
+
+    const submissionCount = report.candidates.length;
+    const confirmed = window.confirm(
+      `Delete all ${submissionCount} submissions and all saved comparison batches? This cannot be undone.`,
+    );
+    if (!confirmed) return;
+
+    setUploadServerError(null);
+    setSubmissionActionMessage(null);
+    setUploadProgress(1);
+    try {
+      // Development mode uses a generated in-memory sample report rather than saved server data.
+      if (!import.meta.env.DEV) await api.deleteAllSubmissions();
+      setReport(null);
+      setSelectedCandidateId(null);
+      setQueuedFiles([]);
+      setSearch('');
+      setSubmissionActionMessage(`Deleted ${submissionCount} submissions and saved comparison batches.`);
+    } catch (err) {
+      setUploadServerError(err instanceof Error ? err.message : 'Could not delete submissions.');
+    } finally {
+      setUploadProgress(null);
+    }
+  };
+
   const filteredCandidates = useMemo(() => {
     if (!report) return [];
     return report.candidates
@@ -457,6 +484,12 @@ export const SubmissionsPage: React.FC = () => {
         </div>
       </section>
 
+      {submissionActionMessage && (
+        <div role="status" style={{ color: 'var(--risk-clear)', fontSize: 'var(--text-xs)' }}>
+          {submissionActionMessage}
+        </div>
+      )}
+
       {/* Split View: Candidate List + Candidate Dossier */}
       {report && report.candidates.length > 0 && (
         <div
@@ -470,11 +503,32 @@ export const SubmissionsPage: React.FC = () => {
           {/* Left Panel: Search, Filters, Sort, Virtualized List */}
           <div className="zixie-card" style={{ padding: 'var(--space-4)' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--space-3)' }}>
-              {submissionActionMessage && (
-                <div role="status" style={{ color: 'var(--risk-clear)', fontSize: 'var(--text-xs)' }}>
-                  {submissionActionMessage}
-                </div>
-              )}
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 'var(--space-3)', flexWrap: 'wrap' }}>
+                <span style={{ color: 'var(--text-secondary)', fontSize: 'var(--text-xs)' }}>
+                  {report.candidates.length} {report.candidates.length === 1 ? 'submission' : 'submissions'} in this batch
+                </span>
+                <button
+                  type="button"
+                  onClick={() => void deleteAllSubmissions()}
+                  disabled={uploadProgress !== null}
+                  className="zixie-button"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: 'var(--space-2)',
+                    padding: 'var(--space-2) var(--space-3)',
+                    borderColor: 'var(--risk-collusion)',
+                    backgroundColor: 'transparent',
+                    color: 'var(--risk-collusion)',
+                    fontSize: 'var(--text-xs)',
+                    cursor: uploadProgress !== null ? 'wait' : 'pointer',
+                    opacity: uploadProgress !== null ? 0.55 : 1,
+                  }}
+                >
+                  <Trash2 size={14} />
+                  Delete all submissions
+                </button>
+              </div>
               {report.candidates.length <= 2 && (
                 <div style={{ color: 'var(--text-muted)', fontSize: 'var(--text-xs)' }}>
                   At least two submissions are needed for a comparison, so removal is unavailable for this set.

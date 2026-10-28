@@ -135,6 +135,12 @@ export const analysisRoutes: FastifyPluginAsync = async (fastify) => {
     return session;
   });
 
+  // Delete every saved report and submission batch belonging to the signed-in owner.
+  fastify.delete('/reports', { preHandler: requireAuth }, async (request) => {
+    const deletedCount = await reportStore.deleteAll(request.user.sub);
+    return { deletedCount };
+  });
+
   // 5. Get Report by ID
   fastify.get('/reports/:id', { preHandler: requireAuth }, async (request, reply) => {
     const { id } = request.params as { id: string };
